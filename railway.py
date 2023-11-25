@@ -12,7 +12,7 @@ class Track(object):
                  host='localhost', port=8888,
                  pin_enable=None, pin_fwd=17, pin_rev=18, tracks=[],
                  max_speed=1.0, steps=10, ctime=5,
-                 switch_pins=[],
+                 switch_pins=[], point_pins=[],
                  debug=0, help=False):
         if help:
             self.help()
@@ -38,6 +38,7 @@ class Track(object):
         self.__steps = steps
         self.__ctime = ctime
         self.__switch_pins = switch_pins
+        self.__point_pins = point_pins
         self.__debug = debug
 
         self.__factory = PiGPIOFactory(host=self.__host, port=self.__port)
@@ -64,6 +65,7 @@ class Track(object):
             self.__reset()
             return
         self.__init_switches()
+        self.__init_points()
 
         # public attributes
         self.go_forward = 1
@@ -89,20 +91,19 @@ class Track(object):
         return self.which_direction_is(self.__current_direction)
 
     def switch_id(self, pin=None):
-        count = 0
-        for id in self.__switch_pins:
-            if id == pin:
-                return count
-            else:
-                count += 1
-        return -1
+        if 'GPIO'+str(pin) in self.__switches_gpio.keys():
+            return self.__switches_gpio['GPIO'+str(pin)]
+        else:
+            return -1
 
     # Private methods
     def __reset(self):
         self.__choo_choos = []
         self.__on_offs = []
         self.__switches = []
+        self.__points = []
         self.__switches_gpio = {}
+        self.__points_gpio = {}
         self.__choo_choo = None
         self.__on_off = None
         self.use_enable_pin = False
@@ -146,6 +147,15 @@ class Track(object):
             self.__switches_gpio['GPIO'+str(switch_pin)] = count
             self.__switches.append(Button(switch_pin,pin_factory=self.__factory))
             self.__switches[count].when_released = self.__switch_callback
+            count += 1
+
+    def __init_points(self):
+        self.__max_points = len(self.__point_pins)
+        count = 0
+        for point_pin in self.__point_pins:
+            self.__debug_print("* Initializeing point "+str(count)+" on pin GPIO"+str(point_pin),0)
+            self.__points_gpio['GPIO'+str(point_pin)] = count
+            self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
             count += 1
 
     def __switch_callback(self,press):
@@ -337,6 +347,23 @@ class Track(object):
             return self.__dirlist[self.go_stop+1]
         return self.__dirlist[my_direction+1]
 
+    def point_state_0(self, point_nr):
+        self.__debug_print("Point "+str(point_nr)+" to state 0",1)
+        if point_nr < self.__max_points:
+            if self.__points[point_nr].value == 1:
+                self.__points[point_nr].off()
+
+    def point_state_1(self, point_nr):
+        self.__debug_print("Point "+str(point_nr)+" to state 1",1)
+        if point_nr < self.__max_points:
+            if self.__points[point_nr].value == 0:
+                self.__points[point_nr].on()
+
+    def point_toggle(self, point_nr):
+        self.__debug_print("Point "+str(point_nr)+" to toggle (from state "+str(self.__points[point_nr].value)+")",1)
+        if point_nr < self.__max_points:
+            self.__points[point_nr].toggle()
+
     def show_settings(self):
         print("Settings:")
         print("  track name:                        "+self.__name)
@@ -372,6 +399,11 @@ class Track(object):
         for pin in self.__switch_pins:
             print("    Switch "+str(count)+" on GPIO"+str(pin))
             count += 1
+        print("  Available points:")
+        count = 0
+        for pin in self.__point_pins:
+            print("    Point "+str(count)+" on GPIO"+str(pin)+" (status "+str(self.__points[count].value)+")")
+            count += 1
         print("  Current speed:     "+str(round(self.__current_speed,3)))
         print("  Current direction: "+self.which_direction_is(self.__current_direction))
 
@@ -379,7 +411,7 @@ class Track(object):
         print(textwrap.dedent('''\
             Initialize a track:
 
-            t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, switch_pins, debug, help)
+            t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, switch_pins, point_pins debug, help)
             Where:
                 name of the instance (default=track)
                 host is the system running pigpiod (default=localhost)
@@ -395,6 +427,7 @@ class Track(object):
                 ctime is the number of seconds taken to accelerate for 0 to max_speed and
                     to decellerate from max_speed to 0
                 switch_pins is a list of gpio pin numbers that are connected to switches (default empty)
+                point_pins is a list of gpio pin numbers that are connected to point motor relays (default empty)
                 if debug is greater than 0 messages are printed (higher number is more messages
 
             * <direction> can be c.go_forward, c.go_backward or c.go_stop
@@ -410,6 +443,13 @@ class Track(object):
                 t.stop(t.force_stop)
             > wait for a specific time
                 t.pause(<duration in seconds>)
+                              
+            > Set point to state 0
+                t.point_state_0(<point_nr>)
+            > Set point to state 1
+                t.point_state_1(<point_nr>)
+            > Toggle point state
+                t.point_toggle(<point_nr>)
 
             > Add callback function to monitor speed and direction. Can be called multiple times to add multiple callback functions.
               Each time speed or direction changes, all bound functions are called with the new speed or direction as argument

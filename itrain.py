@@ -122,6 +122,30 @@ class iTrain(Cmd):
             print("\nInvalid command: "+inp.split()[0]+"\n")
             self.do_show_help(inp)
 
+    def do_point_state_0(self,inp):
+        self.__process_command(inp,"point_state_0")
+        
+    def do_point_state_1(self,inp):
+        self.__process_command(inp,"point_state_1")
+        
+    def do_point_toggle(self,inp):
+        self.__process_command(inp,"point_toggle")
+        
+    def do_point(self,inp):
+        l_inp = inp.split(" ")
+        if len(l_inp) > 2:
+            inp = " ".join(l_inp[2:])
+            if len(l_inp) > 2:
+                if l_inp[0] == "state":
+                    if l_inp[1] == "0":
+                        self.do_point_state_0(inp)
+                    elif l_inp[1] == "1":
+                        self.do_point_state_1(inp)
+        else:
+            inp = " ".join(l_inp[1:])
+            if l_inp[0] == "toggle":
+                self.do_point_toggle(inp)
+    
     def do_show(self,inp):
         l_inp = inp.split(" ")
         if len(l_inp) > 0:
@@ -149,7 +173,11 @@ class iTrain(Cmd):
         print(textwrap.dedent('''\
             <COMMAND> <OPTION> [<OPTION> ...]\n
             Where:
-                <COMMAND>   One of the comands set_speed, run_for, run_until, pause, wait_for_switch or stop
+                <COMMAND>   One of the comands:
+                                set_speed, run_for, run_until, 
+                                pause, wait_for_switch, 
+                                point_state_0, point_state_1, point_toggle or  
+                                stop
                             Space may be used in stead of underscores in the command names
                 <OPTION>    Each command requires specific options:
                             set_speed:          <SPEED> <DIRECTION>
@@ -157,6 +185,9 @@ class iTrain(Cmd):
                             run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
                             pause:              <DURATION>
                             wait_for_switch:    <SWITCH> <COUNT>
+                            point_state_0:      <POINT>
+                            point_state_1:      <POINT>
+                            point_switch:       <POINT>
                             stop:               no options
                             Where:
                                 SPEED       0 - 1
@@ -164,6 +195,8 @@ class iTrain(Cmd):
                                 DURATION    number of seconds
                                 SWITCH      Switch number as defined by the --switch options.
                                             0-based so the first --switch option is SWITCH 0
+                                POINT       Point number as defined by the --point options.
+                                            0-based so the first --point option is POINT 0
                                 COUNT       Number of times the switch should be triggered
             '''))
 
@@ -182,6 +215,8 @@ class iTrain(Cmd):
     def help_show(self):
         print("show_settings/show_status, show_help and show_train_help can also be used with a space instead of an underscore")
 
+    def help_point(self):
+        print("point_state_0/point_state_1, point_toggle can also be used with a space instead of an underscore")
     def help_wait(self):
         print("wait_for_switch can also be used with a space instead of an underscore")
 
@@ -224,6 +259,15 @@ class iTrain(Cmd):
     def help_stop(self):
         print("stop")
 
+    def help_point_state_0(self):
+        print("point_state_0 <POINT>")
+        
+    def help_point_state_1(self):
+        print("point_state_1 <POINT>")
+        
+    def help_point_toggle(self):
+        print("point_toggle <POINT>")
+        
     def help_run_script(self):
         print("run_script <SCRIPTFILE>")
     do_EOF = do_exit

@@ -29,13 +29,20 @@ def process_args():
                                             Where:
                                                 <ORDER>     Number to designate the order of execution,
                                                             execution will run from the lowest to the highest number
-                                                <COMMAND>   One of the comands set_speed, run_for, run_until, pause, wait_for_switch or stop
+                                                <COMMAND>   One of the comands:
+                                                                set_speed, run_for, run_until, 
+                                                                pause, wait_for_switch, 
+                                                                point_state_0, point_state_1, point_toggle or 
+                                                                stop
                                                 <OPTION>    Each command requires specific options:
                                                             set_speed:          <SPEED> <DIRECTION>
                                                             run_for:            <SPEED> <DIRECTION> <DURATION>
                                                             run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
                                                             pause:              <DURATION>
                                                             wait_for_switch:    <SWITCH> <COUNT>
+                                                            point_state_0:      <POINT>
+                                                            point_state_1:      <POINT>
+                                                            point_switch:       <POINT>
                                                             stop:               no options
                                                             Where:
                                                                 SPEED       0 - 1
@@ -43,6 +50,8 @@ def process_args():
                                                                 DURATION    number of seconds
                                                                 SWITCH      Switch number as defined by the --switch options.
                                                                             0-based so the first --switch option is SWITCH 0
+                                                                POINT       Point number as defined by the --point options.
+                                                                            0-based so the first --point option is POINT 0
                                                                 COUNT       Number of times the switch should be triggered
                                         '''))
 
@@ -60,6 +69,7 @@ def process_args():
     parser.add_argument("--steps", dest='steps', type=int, action='store', default=10, help="Number of steps to go from MIN/MAX to MAX/MIN (default: 10)")
     parser.add_argument("--ctime", dest='ctime', type=int, action='store', default=5, help="Number of seconds to go from MIN/MAX to MAX/MIN (default: 5)")
     parser.add_argument("-s","--s","--switch", dest='switch_pins', type=int, action='append', default=[], help="GPIO number of a switch, can be specified multiple times, for run_until at least one is required (default: [])")
+    parser.add_argument("-p","--p","--point", dest='point_pins', type=int, action='append', default=[], help="GPIO number of a point, can be specified multiple times (default: [])")
     parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
 
     parser.add_argument("--speed", dest="speed", type=float, action='store', default=1, help="for set_speed, run_for and run_until (default: 1)")
@@ -85,7 +95,7 @@ def main():
                pin_enable=args.pin_enable, pin_fwd=args.pin_fwd, pin_rev=args.pin_rev,
                tracks=args.tracks,
                steps=args.steps, ctime=args.ctime,
-               switch_pins=args.switch_pins,
+               switch_pins=args.switch_pins, point_pins=args.point_pins,
                debug=args.debug)
 
     if not t.is_ok():

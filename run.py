@@ -33,6 +33,7 @@ class run_train(object):
                 cmd_list['ERRORS'].append(str(cmd_line)+': Order '+str(cmd[0])+' already exists.')
             else:
                 cmd_list['CMDS'].append(cmd[0])
+                __point = [okIgnore,okIgnore]
                 __track = [okIgnore,okIgnore]
                 __speed = [okIgnore,okIgnore]
                 __direction = [okIgnore,okIgnore]
@@ -58,6 +59,8 @@ class run_train(object):
                 elif cmd[1] == 'wait_for_switch':
                     __switch = self.check_option(cmd,2)
                     __count = self.check_option(cmd,3)
+                elif cmd[1] == "point_state_0" or cmd[1] == "point_state_1" or cmd[1] == "point_toggle":
+                    __point = self.check_option(cmd,2)
                 elif cmd[1] not in ['stop']:
                     cmd_list['ERRORS'].append(str(cmd_line)+': Unknwon command '+str(cmd[1])+'.')
 
@@ -90,6 +93,11 @@ class run_train(object):
                     cmd_list['ERRORS'].append(str(cmd_line)+': value for COUNT is missing')
                 elif __count[0] == errValueError or (__count[0] != okIgnore and __count[0] < 0):
                     cmd_list['ERRORS'].append(str(cmd_line)+': invalid value for COUNT '+str(__count[1]))
+
+                if __point[0]in [errIndexError,errNoValue]:
+                    cmd_list['ERRORS'].append(str(cmd_line)+': value for POINT is missing')
+                elif __point[0] == errValueError or (__point[0] != okIgnore and __point[0] < 0):
+                    cmd_list['ERRORS'].append(str(cmd_line)+': invalid value for POINT '+str(__switch[1]))
 
         return cmd_list['ERRORS']
 
@@ -126,6 +134,15 @@ class run_train(object):
                 t.wait_for_switch(__switch, __count)
             elif cmd[1] == 'stop':
                 t.stop()
+            elif cmd[1] == "point_state_0":
+                __point = self.check_option(cmd,2)[0]
+                t.point_state_0(__point) 
+            elif cmd[1] == "point_state_1":
+                __point = self.check_option(cmd,2)[0]
+                t.point_state_1(__point) 
+            elif cmd[1] == "point_toggle":
+                __point = self.check_option(cmd,2)[0]
+                t.point_toggle(__point) 
         return True
 
     def process_commands(self, t, cmd_options, debug):
