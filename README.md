@@ -27,4 +27,4 @@ sudo systemctl enable pigpiod
  
 And that's it. Head over to the Wiki for detailed info on how to use MoRaPi
 
-Have Fun
+Have Fun (And please leave me some feedback, I am really looking forward to it!)
