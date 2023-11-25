@@ -180,7 +180,7 @@ class iTrain(Cmd):
                                 stop
                             Space may be used in stead of underscores in the command names
                 <OPTION>    Each command requires specific options:
-                            set_speed:          <SPEED> <DIRECTION>
+                            set_speed:          <SPEED> <DIRECTION> <FORCE>
                             run_for:            <SPEED> <DIRECTION> <DURATION>
                             run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
                             pause:              <DURATION>
@@ -192,6 +192,7 @@ class iTrain(Cmd):
                             Where:
                                 SPEED       0 - 1
                                 DIRECTION   -1 (backwards) or 1 (forward)
+                                FORCE       True/False if False, gradually change speed
                                 DURATION    number of seconds
                                 SWITCH      Switch number as defined by the --switch options.
                                             0-based so the first --switch option is SWITCH 0

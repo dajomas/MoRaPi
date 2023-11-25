@@ -4,12 +4,14 @@ errValueError = -1001
 errIndexError = -1002
 
 class run_train(object):
-    def check_option(self, options, optnr, dofloat=False):
+    def check_option(self, options, optnr, dofloat=False, doBool=False):
         retval = errNoValue
         oldval = errNoValue
         try:
             if dofloat:
                 retval = float(options[optnr])
+            elif doBool:
+                retval = bool(options[optnr])
             else:
                 retval = int(options[optnr])
         except ValueError:
@@ -35,6 +37,7 @@ class run_train(object):
                 cmd_list['CMDS'].append(cmd[0])
                 __point = [okIgnore,okIgnore]
                 __track = [okIgnore,okIgnore]
+                __force = [okIgnore,okIgnore]
                 __speed = [okIgnore,okIgnore]
                 __direction = [okIgnore,okIgnore]
                 __duration = [okIgnore,okIgnore]
@@ -45,6 +48,7 @@ class run_train(object):
                 elif cmd[1] == 'set_speed':
                     __speed = self.check_option(cmd,2,True)
                     __direction = self.check_option(cmd,3)
+                    __force = self.check_option(cmd,4,doBool=True)
                 elif cmd[1] == 'run_for':
                     __speed = self.check_option(cmd,2,True)
                     __direction = self.check_option(cmd,3)
@@ -99,6 +103,11 @@ class run_train(object):
                 elif __point[0] == errValueError or (__point[0] != okIgnore and __point[0] < 0):
                     cmd_list['ERRORS'].append(str(cmd_line)+': invalid value for POINT '+str(__switch[1]))
 
+                if __force[0]in [errIndexError,errNoValue]:
+                    cmd_list['ERRORS'].append(str(cmd_line)+': value for FORCE is missing')
+                elif __force[0] == errValueError or (__force[0] != okIgnore and __force[0] < 0):
+                    cmd_list['ERRORS'].append(str(cmd_line)+': invalid value for FORCE '+str(__switch[1]))
+
         return cmd_list['ERRORS']
 
     def run_program(self, t, cmd_line_options, debug):
@@ -113,7 +122,8 @@ class run_train(object):
             elif cmd[1] == 'set_speed':
                 __speed = self.check_option(cmd,2,True)[0]
                 __direction = self.check_option(cmd,3)[0]
-                t.set_speed(__speed, __direction)
+                __force = self.check_option(cmd,4,doBool=True)[0]
+                t.set_speed(__speed, __direction, __force)
             elif cmd[1] == 'run_for':
                 __speed = self.check_option(cmd,2,True)[0]
                 __direction = self.check_option(cmd,3)[0]

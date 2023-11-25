@@ -178,25 +178,31 @@ class Track(object):
         for callback in self.__direction_observers:
             callback(self.__current_direction)
 
-    def __speed_up (self, new_speed,direction=1):
+    def __speed_up (self, new_speed,direction=1, force=False):
         if new_speed > self.__max_speed:
             new_speed = self.__max_speed
         self.__debug_print("Speeding up: going "+self.which_direction_is(direction)+" to "+str(round(new_speed*100,0))+"%",1)
         speed = self.__current_speed
         while round(speed,3) < round(new_speed,3):
-            speed += self.__speed_change
+            if force:
+                speed = new_speed
+            else:
+                speed += self.__speed_change
             if speed >= 1:
                 speed = 1
             self.set_speed(speed,direction)
             sleep(self.__acc_delay)
 
-    def __slow_down (self, new_speed=0):
+    def __slow_down (self, new_speed=0, force=False):
         if new_speed < 0:
             new_speed = 0
         self.__debug_print("Slowing down: going "+self.which_direction_is(self.__current_direction)+" to "+str(round(new_speed*100,0))+"%",1)
         speed = self.__current_speed
         while round(speed,3) > round(new_speed,3):
-            speed -= self.__speed_change
+            if force:
+                speed = new_speed
+            else:
+                speed -= self.__speed_change
             if speed <= 0 :
                 self.set_speed(speed,0)
             else:
@@ -265,7 +271,7 @@ class Track(object):
             self.__debug_print("Turn track off",1)
             self.__on_off.off()
 
-    def set_speed (self, _speed=0, _direction=1):
+    def set_speed (self, _speed=0, _direction=1, _force=False):
         if not self.__is_enabled():
             return
         if _speed < 0:
@@ -280,7 +286,7 @@ class Track(object):
             self.__set_current_speed(0)
             self.__set_current_direction(_direction)
             self.__speed_up(_speed, _direction)
-        elif round(abs(self.__current_speed-_speed),3) > self.__speed_change:
+        elif (round(abs(self.__current_speed-_speed),3) > self.__speed_change) and not _force:
             self.__debug_print("Speed difference is greater than speed_change ("+str(round(abs(self.__current_speed-_speed),3))+" > "+str(self.__speed_change)+")",2)
             if _speed > self.__current_speed:
                 self.__speed_up(_speed,_direction)
@@ -432,7 +438,7 @@ class Track(object):
 
             * <direction> can be c.go_forward, c.go_backward or c.go_stop
             > Set track speed and direction
-                t.set_speed(<Speed>, <direction>)
+                t.set_speed(<Speed>, <direction>, <force>)
             > Run for a specific time and slow to stop
                 t.run_for(<Speed (1)>,<direction (c.go_forward)>,<duration is seconds> (10))
             > Run until a switch is passed 'count' number of times

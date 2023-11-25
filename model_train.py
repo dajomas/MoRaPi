@@ -35,7 +35,7 @@ def process_args():
                                                                 point_state_0, point_state_1, point_toggle or 
                                                                 stop
                                                 <OPTION>    Each command requires specific options:
-                                                            set_speed:          <SPEED> <DIRECTION>
+                                                            set_speed:          <SPEED> <DIRECTION> <FORCE>
                                                             run_for:            <SPEED> <DIRECTION> <DURATION>
                                                             run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
                                                             pause:              <DURATION>
@@ -47,6 +47,7 @@ def process_args():
                                                             Where:
                                                                 SPEED       0 - 1
                                                                 DIRECTION   -1 (backwards) or 1 (forward)
+                                                                FORCE       True/False if False, gradually change speed
                                                                 DURATION    number of seconds
                                                                 SWITCH      Switch number as defined by the --switch options.
                                                                             0-based so the first --switch option is SWITCH 0

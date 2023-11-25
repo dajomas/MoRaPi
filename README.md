@@ -6,6 +6,7 @@ Prerequisites:
  * Raspberry Pi
    * pigpiod (https://abyz.me.uk/rpi/pigpio/)
    * An H-Bridge connected to te RPi (any L298N will work. I used the MotorShield from SB Components: https://shop.sb-components.co.uk/products/motorshield-for-raspberry-pi)
+   * Optionally: A Relay board (like this https://www.amazon.com/4-channel-relay-module/s?k=4+channel+relay+module) if you want to use automated points
  * gpiozero (https://gpiozero.readthedocs.io/en/latest) installed on the machine from which you run the Python scripts (can be the RPi but can also be a remote machine)
 
 First, let's give credit where credit is due. I started this project after following this page: https://www.penguintutor.com/projects/modelrailwayautomation and its accompanying Github repository https://github.com/penguintutor/model-railway/tree/main. I took it a bit further and here we are: MoRaPi
