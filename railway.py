@@ -64,7 +64,7 @@ class Track(object):
         else:
             self.__reset()
             return
-        self.__init_sensores()
+        self.__init_sensors()
         self.__init_points()
 
         # public attributes
@@ -91,8 +91,8 @@ class Track(object):
         return self.__which_direction_is(self.__current_direction)
 
     def sensor_id(self, pin=None):
-        if 'GPIO'+str(pin) in self.__sensores_gpio.keys():
-            return self.__sensores_gpio['GPIO'+str(pin)]
+        if 'GPIO'+str(pin) in self.__sensors_gpio.keys():
+            return self.__sensors_gpio['GPIO'+str(pin)]
         else:
             return -1
 
@@ -100,9 +100,9 @@ class Track(object):
     def __reset(self):
         self.__choo_choos = []
         self.__on_offs = []
-        self.__sensores = []
+        self.__sensors = []
         self.__points = []
-        self.__sensores_gpio = {}
+        self.__sensors_gpio = {}
         self.__points_gpio = {}
         self.__choo_choo = None
         self.__on_off = None
@@ -139,14 +139,14 @@ class Track(object):
             count += 1
         return self.set_track(0)
 
-    def __init_sensores(self):
-        self.__max_sensores = len(self.__sensor_pins)
+    def __init_sensors(self):
+        self.__max_sensors = len(self.__sensor_pins)
         count = 0
         for sensor_pin in self.__sensor_pins:
             self.__debug_print("* Initializeing sensor "+str(count)+" on pin GPIO"+str(sensor_pin),0)
-            self.__sensores_gpio['GPIO'+str(sensor_pin)] = count
-            self.__sensores.append(Button(sensor_pin,pin_factory=self.__factory))
-            self.__sensores[count].when_released = self.__sensor_callback
+            self.__sensors_gpio['GPIO'+str(sensor_pin)] = count
+            self.__sensors.append(Button(sensor_pin,pin_factory=self.__factory))
+            self.__sensors[count].when_released = self.__sensor_callback
             count += 1
 
     def __init_points(self):
@@ -258,7 +258,7 @@ class Track(object):
             self.__debug_print("Invalid track number: "+str(track_nr)+". Not changing track.",0)
             return False
 
-    def bind_sensores(self, callback):
+    def bind_sensors(self, callback):
         self.__sensor_observers.append(callback)
 
     def bind_speed_to(self, callback):
@@ -344,12 +344,12 @@ class Track(object):
         if not self.__is_valid_sensor(sensor_nr):
             self.__debug_print("Invalid sensor: "+str(sensor_nr),0)
             return
-        if sensor_nr < self.__max_sensores:
+        if sensor_nr < self.__max_sensors:
             counter = count
             while counter > 0:
                 self.__debug_print("sensor "+str(sensor_nr)+" to pass "+str(counter)+" times",1)
-                self.__sensores[sensor_nr].wait_for_press()
-                self.__sensores[sensor_nr].wait_for_release()
+                self.__sensors[sensor_nr].wait_for_press()
+                self.__sensors[sensor_nr].wait_for_release()
                 counter -= 1
                 if counter > 0:
                     self.pause(1)
@@ -433,7 +433,7 @@ class Track(object):
                     to decellerate from max_speed to 0
                 ctime is the number of seconds taken to accelerate for 0 to max_speed and
                     to decellerate from max_speed to 0
-                sensor_pins is a list of gpio pin numbers that are connected to sensores (default empty)
+                sensor_pins is a list of gpio pin numbers that are connected to sensors (default empty)
                 point_pins is a list of gpio pin numbers that are connected to point motor relays (default empty)
                 if debug is greater than 0 messages are printed (higher number is more messages
 

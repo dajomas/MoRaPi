@@ -9,7 +9,7 @@ class iTrain(Cmd):
         super(iTrain, self).__init__(completekey, stdin, stdout)
 
         self.track = track
-        self.track.bind_sensores(self.__sensor_callback)
+        self.track.bind_sensors(self.__sensor_callback)
         self.debug = debug
         self.__run = run_train()
 
