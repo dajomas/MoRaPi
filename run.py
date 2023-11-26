@@ -19,6 +19,8 @@ class run_train(object):
             oldval = options[optnr]
         except IndexError:
             retval = errIndexError
+        if retval in [errIndexError,errNoValue] and doBool:
+            retval = False
         return [retval,oldval]
 
     def verify_program(self, cmd_line_options, debug):
