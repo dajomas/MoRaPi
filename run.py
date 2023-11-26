@@ -43,7 +43,7 @@ class run_train(object):
                 __speed = [okIgnore,okIgnore]
                 __direction = [okIgnore,okIgnore]
                 __duration = [okIgnore,okIgnore]
-                __switch = [okIgnore,okIgnore]
+                __sensor = [okIgnore,okIgnore]
                 __count = [okIgnore,okIgnore]
                 if cmd[1] == 'set_track':
                     __track = self.check_option(cmd,2,False)
@@ -58,12 +58,12 @@ class run_train(object):
                 elif cmd[1] == 'run_until':
                     __speed = self.check_option(cmd,2,True)
                     __direction = self.check_option(cmd,3)
-                    __switch = self.check_option(cmd,4)
+                    __sensor = self.check_option(cmd,4)
                     __count = self.check_option(cmd,5)
                 elif cmd[1] == 'pause':
                     __duration = self.check_option(cmd,2,True)
-                elif cmd[1] == 'wait_for_switch':
-                    __switch = self.check_option(cmd,2)
+                elif cmd[1] == 'wait_for_sensor':
+                    __sensor = self.check_option(cmd,2)
                     __count = self.check_option(cmd,3)
                 elif cmd[1] == "point_state_0" or cmd[1] == "point_state_1" or cmd[1] == "point_toggle":
                     __point = self.check_option(cmd,2)
@@ -134,16 +134,16 @@ class run_train(object):
             elif cmd[1] == 'run_until':
                 __speed = self.check_option(cmd,2,True)[0]
                 __direction = self.check_option(cmd,3)[0]
-                __switch = self.check_option(cmd,4)[0]
+                __sensor = self.check_option(cmd,4)[0]
                 __count = self.check_option(cmd,5)[0]
-                t.run_until(__speed, __direction, __switch, __count)
+                t.run_until(__speed, __direction, __sensor, __count)
             elif cmd[1] == 'pause':
                 __duration = self.check_option(cmd,2,True)[0]
                 t.pause(__duration)
-            elif cmd[1] == 'wait_for_switch':
-                __switch = self.check_option(cmd,2)[0]
+            elif cmd[1] == 'wait_for_sensor':
+                __sensor = self.check_option(cmd,2)[0]
                 __count = self.check_option(cmd,3)[0]
-                t.wait_for_switch(__switch, __count)
+                t.wait_for_sensor(__sensor, __count)
             elif cmd[1] == 'stop':
                 t.stop()
             elif cmd[1] == "point_state_0":

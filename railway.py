@@ -12,7 +12,7 @@ class Track(object):
                  host='localhost', port=8888,
                  pin_enable=None, pin_fwd=17, pin_rev=18, tracks=[],
                  max_speed=1.0, steps=10, ctime=5,
-                 switch_pins=[], point_pins=[],
+                 sensor_pins=[], point_pins=[],
                  debug=0, help=False):
         if help:
             self.help()
@@ -21,7 +21,7 @@ class Track(object):
         self.__track_observers = []
         self.__speed_observers = []
         self.__direction_observers = []
-        self.__switch_observers = []
+        self.__sensor_observers = []
 
         self.__name = name
         self.__host = host
@@ -37,7 +37,7 @@ class Track(object):
         self.__max_speed = max_speed
         self.__steps = steps
         self.__ctime = ctime
-        self.__switch_pins = switch_pins
+        self.__sensor_pins = sensor_pins
         self.__point_pins = point_pins
         self.__debug = debug
 
@@ -64,7 +64,7 @@ class Track(object):
         else:
             self.__reset()
             return
-        self.__init_switches()
+        self.__init_sensores()
         self.__init_points()
 
         # public attributes
@@ -90,9 +90,9 @@ class Track(object):
     def direction_str(self) -> str:
         return self.which_direction_is(self.__current_direction)
 
-    def switch_id(self, pin=None):
-        if 'GPIO'+str(pin) in self.__switches_gpio.keys():
-            return self.__switches_gpio['GPIO'+str(pin)]
+    def sensor_id(self, pin=None):
+        if 'GPIO'+str(pin) in self.__sensores_gpio.keys():
+            return self.__sensores_gpio['GPIO'+str(pin)]
         else:
             return -1
 
@@ -100,9 +100,9 @@ class Track(object):
     def __reset(self):
         self.__choo_choos = []
         self.__on_offs = []
-        self.__switches = []
+        self.__sensores = []
         self.__points = []
-        self.__switches_gpio = {}
+        self.__sensores_gpio = {}
         self.__points_gpio = {}
         self.__choo_choo = None
         self.__on_off = None
@@ -118,7 +118,7 @@ class Track(object):
                     ret = False
                 else:
                     pins[str(pin)] = pin
-        for pin in  self.__switch_pins:
+        for pin in  self.__sensor_pins:
             if str(pin) in pins.keys():
                 self.__debug_print("! Duplicate pins found: GPIO"+str(pin),0)
                 ret = False
@@ -139,14 +139,14 @@ class Track(object):
             count += 1
         return self.set_track(0)
 
-    def __init_switches(self):
-        self.__max_switches = len(self.__switch_pins)
+    def __init_sensores(self):
+        self.__max_sensores = len(self.__sensor_pins)
         count = 0
-        for switch_pin in self.__switch_pins:
-            self.__debug_print("* Initializeing switch "+str(count)+" on pin GPIO"+str(switch_pin),0)
-            self.__switches_gpio['GPIO'+str(switch_pin)] = count
-            self.__switches.append(Button(switch_pin,pin_factory=self.__factory))
-            self.__switches[count].when_released = self.__switch_callback
+        for sensor_pin in self.__sensor_pins:
+            self.__debug_print("* Initializeing sensor "+str(count)+" on pin GPIO"+str(sensor_pin),0)
+            self.__sensores_gpio['GPIO'+str(sensor_pin)] = count
+            self.__sensores.append(Button(sensor_pin,pin_factory=self.__factory))
+            self.__sensores[count].when_released = self.__sensor_callback
             count += 1
 
     def __init_points(self):
@@ -158,9 +158,9 @@ class Track(object):
             self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
             count += 1
 
-    def __switch_callback(self,press):
+    def __sensor_callback(self,press):
         if press.value == 0:
-            for callback in self.__switch_observers:
+            for callback in self.__sensor_observers:
                 callback(press)
 
     def __set_current_track(self, new_track):
@@ -220,8 +220,8 @@ class Track(object):
         else:
             return True
 
-    def __is_valid_switch(self, switch_nr):
-        if switch_nr >=0 and switch_nr < len(self.__switch_pins):
+    def __is_valid_sensor(self, sensor_nr):
+        if sensor_nr >=0 and sensor_nr < len(self.__sensor_pins):
             return True
         else:
             return False
@@ -252,8 +252,8 @@ class Track(object):
             self.__debug_print("Invalid track number: "+str(track_nr)+". Not changing track.",0)
             return False
 
-    def bind_switches(self, callback):
-        self.__switch_observers.append(callback)
+    def bind_sensores(self, callback):
+        self.__sensor_observers.append(callback)
 
     def bind_speed_to(self, callback):
         self.__speed_observers.append(callback)
@@ -322,28 +322,28 @@ class Track(object):
         self.pause(delay)
         self.stop()
 
-    def run_until(self, speed=0, direction=1, switch_nr=0, count=1):
+    def run_until(self, speed=0, direction=1, sensor_nr=0, count=1):
         if not self.__is_enabled():
             return
-        if not self.__is_valid_switch(switch_nr):
-            self.__debug_print("Invalid switch: "+str(switch_nr),0)
+        if not self.__is_valid_sensor(sensor_nr):
+            self.__debug_print("Invalid sensor: "+str(sensor_nr),0)
             return
         self.set_speed(speed,direction)
-        self.wait_for_switch(switch_nr,count)
+        self.wait_for_sensor(sensor_nr,count)
         self.stop()
 
-    def wait_for_switch(self,switch_nr=0,count=1):
+    def wait_for_sensor(self,sensor_nr=0,count=1):
         if not self.__is_enabled():
             return
-        if not self.__is_valid_switch(switch_nr):
-            self.__debug_print("Invalid switch: "+str(switch_nr),0)
+        if not self.__is_valid_sensor(sensor_nr):
+            self.__debug_print("Invalid sensor: "+str(sensor_nr),0)
             return
-        if switch_nr < self.__max_switches:
+        if sensor_nr < self.__max_sensores:
             counter = count
             while counter > 0:
-                self.__debug_print("Switch "+str(switch_nr)+" to pass "+str(counter)+" times",1)
-                self.__switches[switch_nr].wait_for_press()
-                self.__switches[switch_nr].wait_for_release()
+                self.__debug_print("sensor "+str(sensor_nr)+" to pass "+str(counter)+" times",1)
+                self.__sensores[sensor_nr].wait_for_press()
+                self.__sensores[sensor_nr].wait_for_release()
                 counter -= 1
                 if counter > 0:
                     self.pause(1)
@@ -387,7 +387,7 @@ class Track(object):
         print("  Accelleration/Decelleration time:  "+str(self.__ctime))
         print("  - Speed change per step:           "+str(round(self.__speed_change,3)))
         print("  - Delay per speed change step:     "+str(round(self.__acc_delay,3)))
-        print("  Switch pins:                       "+" ".join(str(x) for x in self.__switch_pins))
+        print("  sensor pins:                       "+" ".join(str(x) for x in self.__sensor_pins))
         print("  Debug level:                       "+str(self.__debug))
         print("")
         print("Current stats:")
@@ -400,10 +400,10 @@ class Track(object):
             if len(track) == 3:
                 print("      Enable GPIO pin:  "+str(track[2]))
             count += 1
-        print("  Available switche pins:")
+        print("  Available sensore pins:")
         count = 0
-        for pin in self.__switch_pins:
-            print("    Switch "+str(count)+" on GPIO"+str(pin))
+        for pin in self.__sensor_pins:
+            print("    sensor "+str(count)+" on GPIO"+str(pin))
             count += 1
         print("  Available points:")
         count = 0
@@ -417,7 +417,7 @@ class Track(object):
         print(textwrap.dedent('''\
             Initialize a track:
 
-            t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, switch_pins, point_pins debug, help)
+            t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, sensor_pins, point_pins debug, help)
             Where:
                 name of the instance (default=track)
                 host is the system running pigpiod (default=localhost)
@@ -432,7 +432,7 @@ class Track(object):
                     to decellerate from max_speed to 0
                 ctime is the number of seconds taken to accelerate for 0 to max_speed and
                     to decellerate from max_speed to 0
-                switch_pins is a list of gpio pin numbers that are connected to switches (default empty)
+                sensor_pins is a list of gpio pin numbers that are connected to sensores (default empty)
                 point_pins is a list of gpio pin numbers that are connected to point motor relays (default empty)
                 if debug is greater than 0 messages are printed (higher number is more messages
 
@@ -441,8 +441,8 @@ class Track(object):
                 t.set_speed(<Speed>, <direction>, <force>)
             > Run for a specific time and slow to stop
                 t.run_for(<Speed (1)>,<direction (c.go_forward)>,<duration is seconds> (10))
-            > Run until a switch is passed 'count' number of times
-                t.run_until(<Speed (1)>,<direction (c.go_forward)>,<switch# (0)>,<count (1)>
+            > Run until a sensor is passed 'count' number of times
+                t.run_until(<Speed (1)>,<direction (c.go_forward)>,<sensor# (0)>,<count (1)>
             > slow the track down to stop
                 t.stop()
             > emergency stop
@@ -464,7 +464,7 @@ class Track(object):
             
             > Show current settings
                 t.show_settings()
-            > Switch tracks (if multiple tracks are provided via the tracks parameter)
+            > sensor tracks (if multiple tracks are provided via the tracks parameter)
                 t.set_track(<track_nr>)
             > Turn track on if an enable pin is used
                 t.on()

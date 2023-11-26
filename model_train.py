@@ -31,29 +31,29 @@ def process_args():
                                                             execution will run from the lowest to the highest number
                                                 <COMMAND>   One of the comands:
                                                                 set_speed, run_for, run_until, 
-                                                                pause, wait_for_switch, 
+                                                                pause, wait_for_sensor, 
                                                                 point_state_0, point_state_1, point_toggle or 
                                                                 stop
                                                 <OPTION>    Each command requires specific options:
                                                             set_speed:          <SPEED> <DIRECTION> <FORCE>
                                                             run_for:            <SPEED> <DIRECTION> <DURATION>
-                                                            run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
+                                                            run_until:          <SPEED> <DIRECTION> <SENSOR> <COUNT>
                                                             pause:              <DURATION>
-                                                            wait_for_switch:    <SWITCH> <COUNT>
+                                                            wait_for_sensor:    <SENSOR> <COUNT>
                                                             point_state_0:      <POINT>
                                                             point_state_1:      <POINT>
-                                                            point_switch:       <POINT>
+                                                            point_sensor:       <POINT>
                                                             stop:               no options
                                                             Where:
                                                                 SPEED       0 - 1
                                                                 DIRECTION   -1 (backwards) or 1 (forward)
                                                                 FORCE       True/False if False, gradually change speed
                                                                 DURATION    number of seconds
-                                                                SWITCH      Switch number as defined by the --switch options.
-                                                                            0-based so the first --switch option is SWITCH 0
+                                                                sensor      sensor number as defined by the --sensor options.
+                                                                            0-based so the first --sensor option is sensor 0
                                                                 POINT       Point number as defined by the --point options.
                                                                             0-based so the first --point option is POINT 0
-                                                                COUNT       Number of times the switch should be triggered
+                                                                COUNT       Number of times the sensor should be triggered
                                         '''))
 
     parser.add_argument("-f","--f","--function", choices=["set_speed","run_for","run_until","demo","program","script","interactive"], type=str, dest='function', default="interactive", help="Function to run (default: interactive)")
@@ -69,14 +69,14 @@ def process_args():
 
     parser.add_argument("--steps", dest='steps', type=int, action='store', default=10, help="Number of steps to go from MIN/MAX to MAX/MIN (default: 10)")
     parser.add_argument("--ctime", dest='ctime', type=int, action='store', default=5, help="Number of seconds to go from MIN/MAX to MAX/MIN (default: 5)")
-    parser.add_argument("-s","--s","--switch", dest='switch_pins', type=int, action='append', default=[], help="GPIO number of a switch, can be specified multiple times, for run_until at least one is required (default: [])")
+    parser.add_argument("-s","--s","--sensor", dest='sensor_pins', type=int, action='append', default=[], help="GPIO number of a sensor, can be specified multiple times, for run_until at least one is required (default: [])")
     parser.add_argument("-p","--p","--point", dest='point_pins', type=int, action='append', default=[], help="GPIO number of a point, can be specified multiple times (default: [])")
     parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
 
     parser.add_argument("--speed", dest="speed", type=float, action='store', default=1, help="for set_speed, run_for and run_until (default: 1)")
     parser.add_argument("--direction", dest="direction", type=int, choices=[-1,1], action='store', default=1, help="-1 is backwards, 1 is forward, for set_speed, run_for and run_until (default: 1)")
     parser.add_argument("--duration", dest="duration", type=int, action='store', default=10, help="duration in seconds, for run_for only (default: 10)")
-    parser.add_argument("--count", dest='count', type=int, action='store', default=1, help="Number of time the switch should be passed before triggering, for run_until only (default: 1)")
+    parser.add_argument("--count", dest='count', type=int, action='store', default=1, help="Number of time the sensor should be passed before triggering, for run_until only (default: 1)")
 
     parser.add_argument("--script", dest='script', type=argparse.FileType('r'), help="scriptfile containing a command per line. (See explanation below)")
     parser.add_argument("--program", nargs='*', action='append', dest='cmd_options', help="run set_speed, run_for or run_until with options. (See explanation below)")
@@ -96,7 +96,7 @@ def main():
                pin_enable=args.pin_enable, pin_fwd=args.pin_fwd, pin_rev=args.pin_rev,
                tracks=args.tracks,
                steps=args.steps, ctime=args.ctime,
-               switch_pins=args.switch_pins, point_pins=args.point_pins,
+               sensor_pins=args.sensor_pins, point_pins=args.point_pins,
                debug=args.debug)
 
     if not t.is_ok():
@@ -114,13 +114,13 @@ def main():
             print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and run for "+str(args.duration)+" seconds")
         t.run_for(args.speed, args.direction, args.duration)
     elif args.function == 'run_until':
-        if len(args.switch_pins) == 0:
-            print("At least one switch should be define if you use the run_until function")
+        if len(args.sensor_pins) == 0:
+            print("At least one sensor should be define if you use the run_until function")
             args.print_help()
         else:
             if DEBUG > 0:
-                print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and the switch at GPIO pin "+str(args.switch_pin)+" triggers "+str(args.count)+" times")
-            t.run_until(args.speed, args.direction, switch_nr=args.switch, count=args.count)
+                print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and the sensor at GPIO pin "+str(args.sensor_pin)+" triggers "+str(args.count)+" times")
+            t.run_until(args.speed, args.direction, sensor_nr=args.sensor, count=args.count)
     elif args.function == "program":
         run = run_train()
         if run.process_commands(t, args.cmd_options, DEBUG) and args.file is not None:

@@ -9,13 +9,13 @@ class iTrain(Cmd):
         super(iTrain, self).__init__(completekey, stdin, stdout)
 
         self.track = track
-        self.track.bind_switches(self.__switch_callback)
+        self.track.bind_sensores(self.__sensor_callback)
         self.debug = debug
         self.__run = run_train()
 
-    def __switch_callback(self,press):
+    def __sensor_callback(self,press):
         pin = int(str(press.pin)[4:])
-        print("\n* Passing switch: "+str(self.track.switch_id(pin=pin))+" ("+str(press.pin)+")")
+        print("\n* Passing sensor: "+str(self.track.sensor_id(pin=pin))+" ("+str(press.pin)+")")
 
     def __process_command(self, inp, cmd):
         cmd_list = inp.split(" ")
@@ -85,15 +85,15 @@ class iTrain(Cmd):
     def do_pause(self,inp):
         self.__process_command(inp,"pause")
 
-    def do_wait_for_switch(self,inp):
-        self.__process_command(inp,"wait_for_switch")
+    def do_wait_for_sensor(self,inp):
+        self.__process_command(inp,"wait_for_sensor")
 
     def do_wait(self,inp):
         l_inp = inp.split(" ")
         if len(l_inp) > 1:
             inp = " ".join(l_inp[2:])
-            if l_inp[0] == "for" and l_inp[1] == "switch":
-                self.__process_command(inp, "wait_for_switch")
+            if l_inp[0] == "for" and l_inp[1] == "sensor":
+                self.__process_command(inp, "wait_for_sensor")
             else:
                 print("\nInvalid command.\n")
                 self.do_show_help(inp)
@@ -175,30 +175,30 @@ class iTrain(Cmd):
             Where:
                 <COMMAND>   One of the comands:
                                 set_speed, run_for, run_until, 
-                                pause, wait_for_switch, 
+                                pause, wait_for_sensor, 
                                 point_state_0, point_state_1, point_toggle or  
                                 stop
                             Space may be used in stead of underscores in the command names
                 <OPTION>    Each command requires specific options:
                             set_speed:          <SPEED> <DIRECTION> <FORCE>
                             run_for:            <SPEED> <DIRECTION> <DURATION>
-                            run_until:          <SPEED> <DIRECTION> <SWITCH> <COUNT>
+                            run_until:          <SPEED> <DIRECTION> <SENSOR> <COUNT>
                             pause:              <DURATION>
-                            wait_for_switch:    <SWITCH> <COUNT>
+                            wait_for_sensor:    <SENSOR> <COUNT>
                             point_state_0:      <POINT>
                             point_state_1:      <POINT>
-                            point_switch:       <POINT>
+                            point_sensor:       <POINT>
                             stop:               no options
                             Where:
                                 SPEED       0 - 1
                                 DIRECTION   -1 (backwards) or 1 (forward)
                                 FORCE       True/False if False, gradually change speed
                                 DURATION    number of seconds
-                                SWITCH      Switch number as defined by the --switch options.
-                                            0-based so the first --switch option is SWITCH 0
+                                sensor      sensor number as defined by the --sensor options.
+                                            0-based so the first --sensor option is sensor 0
                                 POINT       Point number as defined by the --point options.
                                             0-based so the first --point option is POINT 0
-                                COUNT       Number of times the switch should be triggered
+                                COUNT       Number of times the sensor should be triggered
             '''))
 
     def do_show_train_help(self,inp):
@@ -219,7 +219,7 @@ class iTrain(Cmd):
     def help_point(self):
         print("point_state_0/point_state_1, point_toggle can also be used with a space instead of an underscore")
     def help_wait(self):
-        print("wait_for_switch can also be used with a space instead of an underscore")
+        print("wait_for_sensor can also be used with a space instead of an underscore")
 
     def help_set_speed(self):
         print("set_speed <SPEED> <DIRECTION>")
@@ -243,13 +243,13 @@ class iTrain(Cmd):
         print("run_for <SPEED> <DIRECTION> <DURATION>")
 
     def help_run_until(self):
-        print("run_until <SPEED> <DIRECTION> <SWITCH> <COUNT>")
+        print("run_until <SPEED> <DIRECTION> <sensor> <COUNT>")
 
     def help_pause(self):
         print("pause <DURATION>")
 
-    def help_wait_for_switch(self):
-        print("wait_for_switch <SWITCH>")
+    def help_wait_for_sensor(self):
+        print("wait_for_sensor <sensor>")
 
     def help_on(self):
         print("Turn the current track on if the enable pin is used")
