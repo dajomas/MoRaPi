@@ -88,7 +88,7 @@ class Track(object):
 
     @property
     def direction_str(self) -> str:
-        return self.which_direction_is(self.__current_direction)
+        return self.__which_direction_is(self.__current_direction)
 
     def sensor_id(self, pin=None):
         if 'GPIO'+str(pin) in self.__sensores_gpio.keys():
@@ -181,7 +181,7 @@ class Track(object):
     def __speed_up (self, new_speed,direction=1, force=False):
         if new_speed > self.__max_speed:
             new_speed = self.__max_speed
-        self.__debug_print("Speeding up: going "+self.which_direction_is(direction)+" to "+str(round(new_speed*100,0))+"%",1)
+        self.__debug_print("Speeding up: going "+self.__which_direction_is(direction)+" to "+str(round(new_speed*100,0))+"%",1)
         speed = self.__current_speed
         while round(speed,3) < round(new_speed,3):
             if force:
@@ -196,7 +196,7 @@ class Track(object):
     def __slow_down (self, new_speed=0, force=False):
         if new_speed < 0:
             new_speed = 0
-        self.__debug_print("Slowing down: going "+self.which_direction_is(self.__current_direction)+" to "+str(round(new_speed*100,0))+"%",1)
+        self.__debug_print("Slowing down: going "+self.__which_direction_is(self.__current_direction)+" to "+str(round(new_speed*100,0))+"%",1)
         speed = self.__current_speed
         while round(speed,3) > round(new_speed,3):
             if force:
@@ -225,6 +225,12 @@ class Track(object):
             return True
         else:
             return False
+
+    def __which_direction_is(self, my_direction) -> str:
+        if not self.__is_enabled():
+            return self.__dirlist[self.go_stop+1]
+        return self.__dirlist[my_direction+1]
+
 
     def __debug_print(self, message, dbg_level):
         if self.__debug >= dbg_level:
@@ -281,7 +287,7 @@ class Track(object):
         self.__debug_print("* new speed = "+str(_speed)+" new direction = "+str(_direction),3)
         self.__debug_print("* current speed = "+str(self.__current_speed)+" current direction = "+str(self.__current_direction),3)
         if _direction != self.__current_direction and _direction != 0 and self.__current_direction != 0:
-            self.__debug_print("Chaning direction from "+self.which_direction_is(self.__current_direction)+" to "+self.which_direction_is(_direction),2)
+            self.__debug_print("Chaning direction from "+self.__which_direction_is(self.__current_direction)+" to "+self.__which_direction_is(direction),2)
             self.__slow_down()
             self.__set_current_speed(0)
             self.__set_current_direction(_direction)
@@ -348,11 +354,6 @@ class Track(object):
                 if counter > 0:
                     self.pause(1)
 
-    def which_direction_is(self, my_direction) -> str:
-        if not self.__is_enabled():
-            return self.__dirlist[self.go_stop+1]
-        return self.__dirlist[my_direction+1]
-
     def point_state_0(self, point_nr):
         self.__debug_print("Point "+str(point_nr)+" to state 0",1)
         if point_nr < self.__max_points:
@@ -411,7 +412,7 @@ class Track(object):
             print("    Point "+str(count)+" on GPIO"+str(pin)+" (status "+str(self.__points[count].value)+")")
             count += 1
         print("  Current speed:     "+str(round(self.__current_speed,3)))
-        print("  Current direction: "+self.which_direction_is(self.__current_direction))
+        print("  Current direction: "+self.__which_direction_is(self.__current_direction))
 
     def help(self):
         print(textwrap.dedent('''\
