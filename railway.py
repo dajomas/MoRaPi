@@ -258,6 +258,9 @@ class Track(object):
             self.__debug_print("Invalid track number: "+str(track_nr)+". Not changing track.",0)
             return False
 
+    def bind_track(self, callback):
+        self.__track_observers.append(callback)
+
     def bind_sensors(self, callback):
         self.__sensor_observers.append(callback)
 
