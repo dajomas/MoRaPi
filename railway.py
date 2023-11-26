@@ -243,7 +243,7 @@ class Track(object):
         else:
             return False
 
-    def set_track(self, track_nr):
+    def set_track(self, track_nr=0):
         if track_nr < len(self.__choo_choos):
             self.__choo_choo = self.__choo_choos[track_nr]
             if self.__on_offs[track_nr] != None:
@@ -277,35 +277,35 @@ class Track(object):
             self.__debug_print("Turn track off",1)
             self.__on_off.off()
 
-    def set_speed (self, _speed=0, _direction=1, _force=False):
+    def set_speed (self, speed=0, direction=1, force=False):
         if not self.__is_enabled():
             return
-        if _speed < 0:
-            _speed = 0
-        if _speed > self.__max_speed:
-            _speed = self.__max_speed
-        self.__debug_print("* new speed = "+str(_speed)+" new direction = "+str(_direction),3)
+        if speed < 0:
+            speed = 0
+        if speed > self.__max_speed:
+            speed = self.__max_speed
+        self.__debug_print("* new speed = "+str(speed)+" new direction = "+str(direction),3)
         self.__debug_print("* current speed = "+str(self.__current_speed)+" current direction = "+str(self.__current_direction),3)
-        if _direction != self.__current_direction and _direction != 0 and self.__current_direction != 0:
+        if direction != self.__current_direction and direction != 0 and self.__current_direction != 0:
             self.__debug_print("Chaning direction from "+self.__which_direction_is(self.__current_direction)+" to "+self.__which_direction_is(direction),2)
             self.__slow_down()
             self.__set_current_speed(0)
-            self.__set_current_direction(_direction)
-            self.__speed_up(_speed, _direction)
-        elif (round(abs(self.__current_speed-_speed),3) > self.__speed_change) and not _force:
-            self.__debug_print("Speed difference is greater than speed_change ("+str(round(abs(self.__current_speed-_speed),3))+" > "+str(self.__speed_change)+")",2)
-            if _speed > self.__current_speed:
-                self.__speed_up(_speed,_direction)
-            elif _speed < self.__current_speed:
-                self.__slow_down(_speed)
+            self.__set_current_direction(direction)
+            self.__speed_up(speed, direction)
+        elif (round(abs(self.__current_speed-speed),3) > self.__speed_change) and not force:
+            self.__debug_print("Speed difference is greater than speed_change ("+str(round(abs(self.__current_speed-speed),3))+" > "+str(self.__speed_change)+")",2)
+            if speed > self.__current_speed:
+                self.__speed_up(speed,direction)
+            elif speed < self.__current_speed:
+                self.__slow_down(speed)
         else:
-            self.__debug_print("Set speed "+str(round(_speed*100,2))+"%; direction: "+str(self.which_direction_is(_direction)),2)
-            self.__set_current_direction(_direction)
-            self.__set_current_speed(_speed)
-            if (_direction == self.go_forward):
-                self.__choo_choo.forward(_speed)
-            elif (_direction == self.go_backward):
-                self.__choo_choo.backward(_speed)
+            self.__debug_print("Set speed "+str(round(speed*100,2))+"%; direction: "+str(self.__which_direction_is(direction)),2)
+            self.__set_current_direction(direction)
+            self.__set_current_speed(speed)
+            if (direction == self.go_forward):
+                self.__choo_choo.forward(speed)
+            elif (direction == self.go_backward):
+                self.__choo_choo.backward(speed)
             else:
                 self.__full_stop()
 
@@ -321,14 +321,14 @@ class Track(object):
         self.__debug_print("Wait for "+str(delay)+" second",1)
         sleep(delay)
 
-    def run_for(self, speed=0, direction=1, delay=10):
+    def run_for(self, speed=1, direction=1, delay=10):
         if not self.__is_enabled():
             return
         self.set_speed(speed,direction)
         self.pause(delay)
         self.stop()
 
-    def run_until(self, speed=0, direction=1, sensor_nr=0, count=1):
+    def run_until(self, speed=1, direction=1, sensor_nr=0, count=1):
         if not self.__is_enabled():
             return
         if not self.__is_valid_sensor(sensor_nr):
