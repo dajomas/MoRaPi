@@ -264,10 +264,10 @@ class Track(object):
     def bind_sensors(self, callback):
         self.__sensor_observers.append(callback)
 
-    def bind_speed_to(self, callback):
+    def bind_speed(self, callback):
         self.__speed_observers.append(callback)
 
-    def bind_direction_to(self, callback):
+    def bind_direction(self, callback):
         self.__direction_observers.append(callback)
 
     def on(self):
@@ -461,10 +461,12 @@ class Track(object):
             > Toggle point state
                 t.point_toggle(<point_nr>)
 
-            > Add callback function to monitor speed and direction. Can be called multiple times to add multiple callback functions.
-              Each time speed or direction changes, all bound functions are called with the new speed or direction as argument
-                t.bind_speed_to(<function>)
-                t.bind_direction_to(<function>)
+            > Add callback function to monitor track, sensors, speed and direction. Can be called multiple times to add multiple callback functions.
+              Each time speed or direction changes, a different track is activated or a sensor is triggered, all bound functions are called with the new speed or direction, the track number or the sensor object as argument
+                t.bind_track(<function>)
+                t.bind_sensor(<function>)
+                t.bind_speed(<function>)
+                t.bind_direction(<function>)
             
             > Show current settings
                 t.show_settings()
