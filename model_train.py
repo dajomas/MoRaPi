@@ -42,14 +42,14 @@ def process_args():
                                                             wait_for_sensor:    <SENSOR> <COUNT>
                                                             point_state_0:      <POINT>
                                                             point_state_1:      <POINT>
-                                                            point_sensor:       <POINT>
+                                                            point_toggle:       <POINT>
                                                             stop:               no options
                                                             Where:
                                                                 SPEED       0 - 1
                                                                 DIRECTION   -1 (backwards) or 1 (forward)
                                                                 FORCE       True/False if False, gradually change speed
                                                                 DURATION    number of seconds
-                                                                sensor      sensor number as defined by the --sensor options.
+                                                                SENSOR      sensor number as defined by the --sensor options.
                                                                             0-based so the first --sensor option is sensor 0
                                                                 POINT       Point number as defined by the --point options.
                                                                             0-based so the first --point option is POINT 0
