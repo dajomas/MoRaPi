@@ -124,6 +124,12 @@ class Track(object):
                 ret = False
             else:
                 pins[str(pin)] = pin
+        for pin in  self.__point_pins:
+            if str(pin) in pins.keys():
+                self.__debug_print("! Duplicate pins found: GPIO"+str(pin),0)
+                ret = False
+            else:
+                pins[str(pin)] = pin
         return ret
 
     def __init_tracks(self):
