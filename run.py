@@ -1,22 +1,35 @@
+from defaults import *
+
 okIgnore = -999
 errNoValue = -1000
 errValueError = -1001
 errIndexError = -1002
 
 class run_train(object):
-    def check_option(self, options, optnr, dofloat=False, doBool=False):
+    def check_option(self, options, optnr, dofloat=False, doBool=False, doDir=False):
         retval = errNoValue
         oldval = errNoValue
         try:
+            chkval = options[optnr]
             if dofloat:
-                retval = float(options[optnr])
+                retval = float(chkval)
             elif doBool:
-                retval = bool(options[optnr])
+                retval = bool(chkval)
+            elif doDir:
+                if str(chkval).lower() in dir_rev:
+                    retval = -1
+                elif str(chkval).lower() in dir_stop:
+                    retval = 0
+                elif str(chkval).lower() in dir_fwd:
+                    retval = 1
+                else:
+                    retval = errValueError   
+                    oldval = chkval+"*"
             else:
-                retval = int(options[optnr])
+                retval = int(chkval)
         except ValueError:
             retval = errValueError
-            oldval = options[optnr]
+            oldval = chkval
         except IndexError:
             retval = errIndexError
         if retval in [errIndexError,errNoValue] and doBool:
@@ -38,7 +51,7 @@ class run_train(object):
                 if (round(value[0],0) != okIgnore and not(round(value[0],3) >= 0 and round(value[0],3) <= 1)):
                     Err = ': invalid value for '+__type+': '+str(value[0])
             elif __type == 'DIRECTION':
-                if (value[0] != okIgnore and value[0] != -1 and value[0] != 0 and value[0] != 1):
+                if (value[0] != okIgnore and str(value[0]).lower() not in valid_direction):
                     Err = ': invalid value for '+__type+': '+str(value[0])
             else:
                 if (value[0] != okIgnore and value[0] < 0):
@@ -73,15 +86,15 @@ class run_train(object):
                     __track = self.check_option(cmd,2,False)
                 elif cmd[1] == 'set_speed':
                     __speed = self.check_option(cmd,2,True)
-                    __direction = self.check_option(cmd,3)
+                    __direction = self.check_option(cmd,3, doDir=True)
                     __force = self.check_option(cmd,4,doBool=True)
                 elif cmd[1] == 'run_for':
                     __speed = self.check_option(cmd,2,True)
-                    __direction = self.check_option(cmd,3)
+                    __direction = self.check_option(cmd,3, doDir=True)
                     __duration = self.check_option(cmd,4)
                 elif cmd[1] == 'run_until':
                     __speed = self.check_option(cmd,2,True)
-                    __direction = self.check_option(cmd,3)
+                    __direction = self.check_option(cmd,3, doDir=True)
                     __sensor = self.check_option(cmd,4)
                     __count = self.check_option(cmd,5)
                 elif cmd[1] == 'pause':
@@ -116,17 +129,17 @@ class run_train(object):
                 t.set_track(__track)
             elif cmd[1] == 'set_speed':
                 __speed = self.check_option(cmd,2,True)[0]
-                __direction = self.check_option(cmd,3)[0]
+                __direction = self.check_option(cmd,3, doDir=True)[0]
                 __force = self.check_option(cmd,4,doBool=True)[0]
                 t.set_speed(__speed, __direction, __force)
             elif cmd[1] == 'run_for':
                 __speed = self.check_option(cmd,2,True)[0]
-                __direction = self.check_option(cmd,3)[0]
+                __direction = self.check_option(cmd,3, doDir=True)[0]
                 __duration = self.check_option(cmd,4)[0]
                 t.run_for(__speed, __direction, __duration)
             elif cmd[1] == 'run_until':
                 __speed = self.check_option(cmd,2,True)[0]
-                __direction = self.check_option(cmd,3)[0]
+                __direction = self.check_option(cmd,3, doDir=True)[0]
                 __sensor = self.check_option(cmd,4)[0]
                 __count = self.check_option(cmd,5)[0]
                 t.run_until(__speed, __direction, __sensor, __count)

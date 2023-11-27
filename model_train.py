@@ -5,6 +5,7 @@ import textwrap
 from run import run_train
 from itrain import iTrain
 from railway import Track
+from defaults import *
 
 DEBUG = 0
 
@@ -23,38 +24,7 @@ def demo0(e):
 
 def process_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     epilog=textwrap.dedent('''\
-                                        --script and --program command format:
-                                            <ORDER> <COMMAND> <OPTION> [<OPTION> ...]
-                                            Where:
-                                                <ORDER>     Number to designate the order of execution,
-                                                            execution will run from the lowest to the highest number
-                                                <COMMAND>   One of the comands:
-                                                                set_speed, run_for, run_until, 
-                                                                pause, wait_for_sensor, 
-                                                                point_state_0, point_state_1, point_toggle or 
-                                                                stop
-                                                <OPTION>    Each command requires specific options:
-                                                            set_speed:          <SPEED> <DIRECTION> <FORCE>
-                                                            run_for:            <SPEED> <DIRECTION> <DURATION>
-                                                            run_until:          <SPEED> <DIRECTION> <SENSOR> <COUNT>
-                                                            pause:              <DURATION>
-                                                            wait_for_sensor:    <SENSOR> <COUNT>
-                                                            point_state_0:      <POINT>
-                                                            point_state_1:      <POINT>
-                                                            point_toggle:       <POINT>
-                                                            stop:               no options
-                                                            Where:
-                                                                SPEED       0 - 1
-                                                                DIRECTION   -1 (backwards) or 1 (forward)
-                                                                FORCE       True/False if False, gradually change speed
-                                                                DURATION    number of seconds
-                                                                SENSOR      sensor number as defined by the --sensor options.
-                                                                            0-based so the first --sensor option is sensor 0
-                                                                POINT       Point number as defined by the --point options.
-                                                                            0-based so the first --point option is POINT 0
-                                                                COUNT       Number of times the sensor should be triggered
-                                        '''))
+                                     epilog=textwrap.dedent(help_text))
 
     parser.add_argument("-f","--f","--function", choices=["set_speed","run_for","run_until","demo","program","script","interactive"], type=str, dest='function', default="interactive", help="Function to run (default: interactive)")
 
@@ -74,7 +44,7 @@ def process_args():
     parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
 
     parser.add_argument("--speed", dest="speed", type=float, action='store', default=1, help="for set_speed, run_for and run_until (default: 1)")
-    parser.add_argument("--direction", dest="direction", type=int, choices=[-1,1], action='store', default=1, help="-1 is backwards, 1 is forward, for set_speed, run_for and run_until (default: 1)")
+    parser.add_argument("--direction", dest="direction", type=str, choices=valid_direction, action='store', default=1, help="-1 is backwards, 1 is forward, for set_speed, run_for and run_until (default: 1)")
     parser.add_argument("--duration", dest="duration", type=int, action='store', default=10, help="duration in seconds, for run_for only (default: 10)")
     parser.add_argument("--count", dest='count', type=int, action='store', default=1, help="Number of time the sensor should be passed before triggering, for run_until only (default: 1)")
 
