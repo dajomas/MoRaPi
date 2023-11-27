@@ -90,12 +90,6 @@ class Track(object):
     def direction_str(self) -> str:
         return self.__which_direction_is(self.__current_direction)
 
-    def sensor_id(self, pin=None):
-        if 'GPIO'+str(pin) in self.__sensors_gpio.keys():
-            return self.__sensors_gpio['GPIO'+str(pin)]
-        else:
-            return -1
-
     # Private methods
     def __reset(self):
         self.__choo_choos = []
@@ -243,6 +237,12 @@ class Track(object):
             print(message)
 
     # Public methods
+    def sensor_id(self, pin=None):
+        if 'GPIO'+str(pin) in self.__sensors_gpio.keys():
+            return self.__sensors_gpio['GPIO'+str(pin)]
+        else:
+            return -1
+
     def is_ok(self):
         if self.__choo_choo != None:
             return True
