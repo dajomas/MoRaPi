@@ -11,12 +11,14 @@ class iTrain(Cmd):
 
         self.track = track
         self.track.bind_sensors(self.__sensor_callback)
+        self.__show_sensor_trigger = True
         self.debug = debug
         self.__run = run_train()
 
     def __sensor_callback(self,press):
-        pin = int(str(press.pin)[4:])
-        print("\n* Passing sensor: "+str(self.track.sensor_id(pin=pin))+" ("+str(press.pin)+")")
+        if self.__show_sensor_trigger:
+            pin = int(str(press.pin)[4:])
+            print("\n* Passing sensor: "+str(self.track.sensor_id(pin=pin))+" ("+str(press.pin)+")")
 
     def __process_command(self, inp, cmd):
         cmd_list = inp.split(" ")
@@ -38,6 +40,22 @@ class iTrain(Cmd):
     def do_off(self, inp):
         if self.track.use_enable_pin:
             self.track.off()
+
+    def do_toggle_sensor_display(self,inp):
+        self.__show_sensor_trigger = not(self.__show_sensor_trigger)
+
+    def do_toggle(self,inp):
+        l_inp = inp.split(" ")
+        if len(l_inp) > 1:
+            inp = " ".join(l_inp[2:])
+            if l_inp[0] == "sensor" and l_inp[1] == "display":
+                self.do_toggle_sensor_display(inp)
+            else:
+                print("\nInvalid command.\n")
+                self.do_show_help(inp)
+        else:
+            print("\nInvalid command.\n")
+            self.do_show_help(inp)
 
     def do_set_speed(self,inp):
         self.__process_command(inp,"set_speed")
@@ -125,13 +143,13 @@ class iTrain(Cmd):
 
     def do_point_state_0(self,inp):
         self.__process_command(inp,"point_state_0")
-        
+
     def do_point_state_1(self,inp):
         self.__process_command(inp,"point_state_1")
-        
+
     def do_point_toggle(self,inp):
         self.__process_command(inp,"point_toggle")
-        
+
     def do_point(self,inp):
         l_inp = inp.split(" ")
         if len(l_inp) > 2:
@@ -146,7 +164,7 @@ class iTrain(Cmd):
             inp = " ".join(l_inp[1:])
             if l_inp[0] == "toggle":
                 self.do_point_toggle(inp)
-    
+
     def do_show(self,inp):
         l_inp = inp.split(" ")
         if len(l_inp) > 0:
@@ -190,8 +208,12 @@ class iTrain(Cmd):
 
     def help_point(self):
         print("point_state_0/point_state_1, point_toggle can also be used with a space instead of an underscore")
+
     def help_wait(self):
         print("wait_for_sensor can also be used with a space instead of an underscore")
+
+    def help_toggle(self):
+        print("toggle_sensor_display can also be used with a space instead of an underscore")
 
     def help_set_speed(self):
         print("set_speed <SPEED> <DIRECTION>")
@@ -223,6 +245,9 @@ class iTrain(Cmd):
     def help_wait_for_sensor(self):
         print("wait_for_sensor <sensor>")
 
+    def help_toggle_sensor_display(self):
+        print("Turn displaying a message when is sensor is triggered on or off")
+
     def help_on(self):
         print("Turn the current track on if the enable pin is used")
 
@@ -234,13 +259,13 @@ class iTrain(Cmd):
 
     def help_point_state_0(self):
         print("point_state_0 <POINT>")
-        
+
     def help_point_state_1(self):
         print("point_state_1 <POINT>")
-        
+
     def help_point_toggle(self):
         print("point_toggle <POINT>")
-        
+
     def help_run_script(self):
         print("run_script <SCRIPTFILE>")
     do_EOF = do_exit
