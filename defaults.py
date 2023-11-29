@@ -29,7 +29,7 @@ help_text = '''--script and --program command format:
                     add_sensor          <SENSOR PIN>
                     add_point           <POINT PIN>
                     Where:
-                        SPEED       0 - 1
+                        SPEED       float value between 0 (stop) and 1 (full speed)
                         DIRECTION   -1,back,b,reverse,r (backwards),
                                     0,s,stop (stop) or
                                     1,f,forward (forward)
