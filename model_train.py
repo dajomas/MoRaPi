@@ -26,22 +26,25 @@ def process_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=textwrap.dedent(help_text))
 
+    parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
+    parser.add_argument("--name", dest='name', type=str, action='store', default="train", help="Name of the train (default: train)")
+
     parser.add_argument("-f","--f","--function", choices=["set_speed","run_for","run_until","demo","program","script","interactive"], type=str, dest='function', default="interactive", help="Function to run (default: interactive)")
 
-    parser.add_argument("--name", dest='name', type=str, action='store', default="train", help="Name of the train (default: train)")
     parser.add_argument("--host", dest='host', type=str, action='store', default="localhost", help="Name of the host that runs pigpiod (default: localhost)")
     parser.add_argument("--port", dest='port', type=int, action='store', default=8888, help="Port on which pigpio is listening (default: 8888)")
 
-    parser.add_argument("--enable", dest='pin_enable', type=int, action='store', default=None, help="GPIO number of the enable pin (default: None) (ignored if --track is used)")
-    parser.add_argument("--fwd", dest='pin_fwd', type=int, action='store', default=17, help="GPIO number of the forward pin (default: 17) (ignored if --track is used)")
-    parser.add_argument("--rev", dest='pin_rev', type=int, action='store', default=18, help="GPIO number of the backward pin (default: 18) (ignored if --track is used)")
-    parser.add_argument("--track", nargs='*', type=int, action='append', dest='tracks', default=[], help="Define track as <fwd-pin> <rev-pin> [<enable-pin>]")
-
     parser.add_argument("--steps", dest='steps', type=int, action='store', default=10, help="Number of steps to go from MIN/MAX to MAX/MIN (default: 10)")
     parser.add_argument("--ctime", dest='ctime', type=int, action='store', default=5, help="Number of seconds to go from MIN/MAX to MAX/MIN (default: 5)")
+
+    parser.add_argument("--list-presets", dest="list_presets", default=False, action='store_true',help="List all available presets (use the preset number with --preset)")
+    parser.add_argument("--preset", dest="presets", action='append', type=int, default=[], help="use predefined presets to configure a track segment (can be used multiple times)")
+    parser.add_argument("--fwd", dest='pin_fwd', type=int, action='store', default=17, help="GPIO number of the forward pin (default: 17) (ignored if --track is used)")
+    parser.add_argument("--rev", dest='pin_rev', type=int, action='store', default=18, help="GPIO number of the backward pin (default: 18) (ignored if --track is used)")
+    parser.add_argument("--enable", dest='pin_enable', type=int, action='store', default=None, help="GPIO number of the enable pin (default: None) (ignored if --track is used)")
+    parser.add_argument("--track", nargs='*', type=int, action='append', dest='tracks', default=[], help="Define track as <fwd-pin> <rev-pin> [<enable-pin>]")
     parser.add_argument("-s","--s","--sensor", dest='sensor_pins', type=int, action='append', default=[], help="GPIO number of a sensor, can be specified multiple times, for run_until uses the first sensor, so at least one is required (default: [])")
     parser.add_argument("-p","--p","--point", dest='point_pins', type=int, action='append', default=[], help="GPIO number of a point, can be specified multiple times (default: [])")
-    parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
 
     parser.add_argument("--speed", dest="speed", type=float, action='store', default=1, help="for set_speed, run_for and run_until (default: 1)")
     parser.add_argument("--direction", dest="direction", type=str, choices=valid_direction, action='store', default=1, help="-1 is backwards, 1 is forward, for set_speed, run_for and run_until (default: 1)")
@@ -52,8 +55,6 @@ def process_args():
     parser.add_argument("--program", nargs='*', action='append', dest='cmd_options', help="run set_speed, run_for or run_until with options. (See explanation below)")
     parser.add_argument("--save", dest="file", type=argparse.FileType('w'), help="Save program steps to file (only use with program)")
 
-    parser.add_argument("--list-presets", dest="list_presets", default=False, action='store_true',help="List all available presets (use the preset number with --preset)")
-    parser.add_argument("--preset", dest="presets", action='append', type=int, default=[], help="use predefined presets to configure a track segment (can be used multiple times)")
     return parser.parse_args()
 
 def main():
