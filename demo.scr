@@ -1,4 +1,0 @@
-# 0 run_until 1 forward 1 1
-0 set_speed 1 forward
-1 wait_for_sensor 1 1
-2 stop
