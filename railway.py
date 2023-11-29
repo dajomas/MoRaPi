@@ -27,8 +27,6 @@ class Track(object):
         self.__host = host
         self.__port = port
         self.__set_current_track(None)
-        self.__set_current_speed(0)
-        self.__set_current_direction(0)
 
         self.__pin_enable = pin_enable
         self.__pin_fwd = pin_fwd
@@ -80,15 +78,18 @@ class Track(object):
 
     @property
     def speed(self) -> int:
-        return self.__current_speed
+        return abs(self.__choo_choo.value)
 
     @property
     def direction(self) -> int:
-        return self.__current_direction
+        if self.speed > 0:
+            return int(self.__choo_choo.value/self.speed)
+        else:
+            return 0
 
     @property
     def direction_str(self) -> str:
-        return self.__which_direction_is(self.__current_direction)
+        return self.__which_direction_is(self.direction)
 
     @property
     def tracks(self) -> list:
@@ -189,21 +190,11 @@ class Track(object):
         for callback in self.__track_observers:
             callback(self.__current_track)
 
-    def __set_current_speed(self, new_speed):
-        self.__current_speed = new_speed
-        for callback in self.__speed_observers:
-            callback(self.__current_speed)
-
-    def __set_current_direction(self, new_direction):
-        self.__current_direction = new_direction
-        for callback in self.__direction_observers:
-            callback(self.__current_direction)
-
     def __speed_up (self, new_speed,direction=1, force=False):
         if new_speed > self.__max_speed:
             new_speed = self.__max_speed
         self.__debug_print('Speeding up: going '+self.__which_direction_is(direction)+' to '+str(round(new_speed*100,0))+'%',1)
-        speed = self.__current_speed
+        speed = self.speed
         while round(speed,3) < round(new_speed,3):
             if force:
                 speed = new_speed
@@ -217,8 +208,8 @@ class Track(object):
     def __slow_down (self, new_speed=0, force=False):
         if new_speed < 0:
             new_speed = 0
-        self.__debug_print('Slowing down: going '+self.__which_direction_is(self.__current_direction)+' to '+str(round(new_speed*100,0))+'%',1)
-        speed = self.__current_speed
+        self.__debug_print('Slowing down: going '+self.__which_direction_is(self.direction)+' to '+str(round(new_speed*100,0))+'%',1)
+        speed = self.speed
         while round(speed,3) > round(new_speed,3):
             if force:
                 speed = new_speed
@@ -227,13 +218,12 @@ class Track(object):
             if speed <= 0 :
                 self.set_speed(speed,0)
             else:
-                self.set_speed(speed,self.__current_direction)
+                self.set_speed(speed,self.direction)
             sleep(self.__acc_delay)
 
     def __full_stop(self):
         self.__choo_choo.stop()
         self.__set_current_direction(0)
-        self.__set_current_speed(0)
 
     def __is_enabled(self):
         if self.use_enable_pin != None and self.__on_off.value == 0:
@@ -350,23 +340,21 @@ class Track(object):
         if speed > self.__max_speed:
             speed = self.__max_speed
         self.__debug_print('* new speed = '+str(speed)+' new direction = '+str(direction),3)
-        self.__debug_print('* current speed = '+str(self.__current_speed)+' current direction = '+str(self.__current_direction),3)
-        if direction != self.__current_direction and direction != 0 and self.__current_direction != 0:
-            self.__debug_print('Chaning direction from '+self.__which_direction_is(self.__current_direction)+' to '+self.__which_direction_is(direction),2)
+        self.__debug_print('* current speed = '+str(self.speed)+' current direction = '+str(self.direction),3)
+        if direction != self.direction and direction != 0 and self.direction != 0:
+            self.__debug_print('Chaning direction from '+self.__which_direction_is(self.direction)+' to '+self.__which_direction_is(direction),2)
             self.__slow_down()
-            self.__set_current_speed(0)
             self.__set_current_direction(direction)
             self.__speed_up(speed, direction)
-        elif (round(abs(self.__current_speed-speed),3) > self.__speed_change) and not force:
-            self.__debug_print('Speed difference is greater than speed_change ('+str(round(abs(self.__current_speed-speed),3))+' > '+str(self.__speed_change)+')',2)
-            if speed > self.__current_speed:
+        elif (round(abs(self.speed-speed),3) > self.__speed_change) and not force:
+            self.__debug_print('Speed difference is greater than speed_change ('+str(round(abs(self.speed-speed),3))+' > '+str(self.__speed_change)+')',2)
+            if speed > self.speed:
                 self.__speed_up(speed,direction)
-            elif speed < self.__current_speed:
+            elif speed < self.speed:
                 self.__slow_down(speed)
         else:
             self.__debug_print('Set speed '+str(round(speed*100,2))+'%; direction: '+str(self.__which_direction_is(direction)),2)
             self.__set_current_direction(direction)
-            self.__set_current_speed(speed)
             if (direction == self.go_forward):
                 self.__choo_choo.forward(speed)
             elif (direction == self.go_backward):
@@ -476,8 +464,8 @@ class Track(object):
         for pin in self.__point_pins:
             print('    Point '+str(count)+' on GPIO'+str(pin)+' (status '+str(self.__points[count].value)+')')
             count += 1
-        print('  Current speed:     '+str(round(self.__current_speed,3)))
-        print('  Current direction: '+self.__which_direction_is(self.__current_direction))
+        print('  Current speed:     '+str(round(self.speed,3)))
+        print('  Current direction: '+self.__which_direction_is(self.direction))
 
     def help(self):
         print(textwrap.dedent("""\
