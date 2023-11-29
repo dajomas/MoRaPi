@@ -11,7 +11,7 @@ class iTrack(Cmd):
 
         self.track = track
         self.track.bind_sensors(self.__sensor_callback)
-        self.__show_sensor_trigger = True
+        self.__show_sensor_trigger = False
         self.debug = debug
         self.__run = run_track()
         print('\n** Tracks:')
