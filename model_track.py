@@ -56,8 +56,6 @@ def process_args(dargs):
     parser.add_argument('--program', nargs='*', action='append', dest='cmd_options', help='run set_speed, run_for or run_until with options. (See explanation below)')
     parser.add_argument('--save', dest='file', type=argparse.FileType('w'), help='Save program steps to file (only use with program)')
 
-    parser.add_argument('--save-config', dest='save_config', action='store_true', help='Save used options in '+str(config_file_name))
-
     return parser.parse_args()
 
 def read_config_file():
@@ -77,13 +75,6 @@ def main():
     args = process_args(read_config_file())
 
     DEBUG = args.debug
-
-    try:
-        with open(config_file_name, 'w') as config_file:
-            data = yaml.dump(args, config_file, sort_keys=False, default_flow_style=False)
-            config_file.close()
-    except:
-        print('Unable to write config to file ('+config_file_name+')')
     
     if args.list_presets:
         count = 0
