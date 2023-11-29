@@ -39,7 +39,7 @@ def process_args():
 
     parser.add_argument("--steps", dest='steps', type=int, action='store', default=10, help="Number of steps to go from MIN/MAX to MAX/MIN (default: 10)")
     parser.add_argument("--ctime", dest='ctime', type=int, action='store', default=5, help="Number of seconds to go from MIN/MAX to MAX/MIN (default: 5)")
-    parser.add_argument("-s","--s","--sensor", dest='sensor_pins', type=int, action='append', default=[], help="GPIO number of a sensor, can be specified multiple times, for run_until at least one is required (default: [])")
+    parser.add_argument("-s","--s","--sensor", dest='sensor_pins', type=int, action='append', default=[], help="GPIO number of a sensor, can be specified multiple times, for run_until uses the first sensor, so at least one is required (default: [])")
     parser.add_argument("-p","--p","--point", dest='point_pins', type=int, action='append', default=[], help="GPIO number of a point, can be specified multiple times (default: [])")
     parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
 
@@ -107,8 +107,8 @@ def main():
             args.print_help()
         else:
             if DEBUG > 0:
-                print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and the sensor at GPIO pin "+str(args.sensor_pin)+" triggers "+str(args.count)+" times")
-            t.run_until(args.speed, args.direction, sensor_nr=args.sensor, count=args.count)
+                print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and the sensor at GPIO pin "+str(args.sensor_pins[0])+" triggers "+str(args.count)+" times")
+            t.run_until(args.speed, args.direction, sensor_nr=args.sensor_pins[0], count=args.count)
     elif args.function == "program":
         run = run_train()
         if run.process_commands(t, args.cmd_options, DEBUG) and args.file is not None:
