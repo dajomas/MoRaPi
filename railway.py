@@ -14,6 +14,9 @@ class Track(object):
                  max_speed=1.0, steps=10, ctime=5,
                  sensor_pins=[], point_pins=[],
                  debug=0, help=False):
+
+        self.__reset()
+
         if help:
             self.help()
             return
@@ -39,8 +42,12 @@ class Track(object):
         self.__point_pins = point_pins
         self.__debug = debug
 
-        self.__factory = PiGPIOFactory(host=self.__host, port=self.__port)
-        self.__reset()
+        try:
+            self.__factory = PiGPIOFactory(host=self.__host, port=self.__port)
+        except:
+            self.__debug_print('Unable to connection to '+str(self.__host)+':'+str(self.__port))
+            return
+        
         self.__dirlist = ['backward','stop','forward']
         self.__speed_change = round(self.__max_speed / self.__steps,3)
         self.__acc_delay = round(self.__ctime / self.__steps,3)
