@@ -56,18 +56,21 @@ def process_args(dargs):
     parser.add_argument('--program', nargs='*', action='append', dest='cmd_options', help='run set_speed, run_for or run_until with options. (See explanation below)')
     parser.add_argument('--save', dest='file', type=argparse.FileType('w'), help='Save program steps to file (only use with program)')
 
+    parser.add_argument('--save-config', dest='save_config', action='store_true', help='Save used options in '+str(config_file_name))
+
     return parser.parse_args()
 
 def read_config_file():
     try:
-        with open('model_track.yml', 'r') as config_file:
+        with open(config_file_name, 'r') as config_file:
             config_dict = yaml.safe_load(config_file)
             config_file.close()
         new_config = default_args
-        for key in config_dict['model_track'].keys():
-            new_config[key] = config_dict['model_track'][key]
+        for key in config_dict[script_name].keys():
+            new_config[key] = config_dict[script_name][key]
         return new_config
     except:
+        print('Unable to read from config file. Using default values.')
         return default_args
 
 def main():
@@ -75,6 +78,13 @@ def main():
 
     DEBUG = args.debug
 
+    try:
+        with open(config_file_name, 'w') as config_file:
+            data = yaml.dump(args, config_file, sort_keys=False, default_flow_style=False)
+            config_file.close()
+    except:
+        print('Unable to write config to file ('+config_file_name+')')
+    
     if args.list_presets:
         count = 0
         for preset in presets:

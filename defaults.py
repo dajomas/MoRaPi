@@ -54,6 +54,8 @@ presets = [
     ['MotorShield Motor D',8,7,12],
 ]
 
+script_name = 'model_track'
+config_file_name = script_name+'.yml'
 default_args = {
     'debug': 0,
     'name': 'track',
