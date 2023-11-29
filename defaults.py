@@ -10,10 +10,11 @@ help_text = '''--script and --program command format:
         <ORDER>     Number to designate the order of execution,
                     execution will run from the lowest to the highest number
         <COMMAND>   One of the comands:
-                        set_speed, run_for, run_until, 
-                        pause, wait_for_sensor, 
-                        point_state_0, point_state_1, point_toggle or 
+                        set_speed, run_for, run_until,
+                        pause, wait_for_sensor,
+                        point_state_0, point_state_1, point_toggle or
                         stop
+                        add_track, add_sensor, add_point
         <OPTION>    Each command requires specific options:
                     set_speed:          <SPEED> <DIRECTION> <FORCE>
                     run_for:            <SPEED> <DIRECTION> <DURATION>
@@ -24,10 +25,13 @@ help_text = '''--script and --program command format:
                     point_state_1:      <POINT>
                     point_toggle:       <POINT>
                     stop:               no options
+                    add_track           <FORWARD PIN> <REVERSE PIN> [<ENABLE PIN>]
+                    add_sensor          <SENSOR PIN>
+                    add_point           <POINT PIN>
                     Where:
                         SPEED       0 - 1
-                        DIRECTION   -1,back,b,reverse,r (backwards), 
-                                    0,s,stop (stop) or 
+                        DIRECTION   -1,back,b,reverse,r (backwards),
+                                    0,s,stop (stop) or
                                     1,f,forward (forward)
                         FORCE       True/False if False, gradually change speed
                         DURATION    number of seconds
@@ -35,9 +39,17 @@ help_text = '''--script and --program command format:
                                     0-based so the first --sensor option is sensor 0
                         POINT       Point number as defined by the --point options.
                                     0-based so the first --point option is POINT 0
-                        COUNT       Number of times the sensor should be triggered'''
+                        COUNT       Number of times the sensor should be triggered
+                        FORWARD PIN GPIO number of the forward pin
+                        REVERSE PIN GPIO number of the reverse pin
+                        ENABLE PIN  GPIO number of the enable pin
+                        SENSOR PIN  GPIO number of the sensor pin
+                        POINT PIN   GPIO number of the point pin
+                        '''
+
 presets = [
     ["MotorShield Motor A",27,22,17],
     ["MotorShield Motor B",23,24,15],
     ["MotorShield Motor C",9,11,10],
     ["MotorShield Motor D",8,7,12],
+]

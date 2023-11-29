@@ -126,36 +126,45 @@ class Track(object):
                 pins[str(pin)] = pin
         return ret
 
+    def __init_track(self,track,count):
+        self.__debug_print("* Initializeing enginge "+str(count)+" on pins GPIO"+str(track[0])+" and GPIO"+str(track[1]),0)
+        self.__choo_choos.append(Motor(track[0],track[1],pin_factory=self.__factory, pwm=True))
+        if len(track) == 3:
+            self.__debug_print("* Initializeing enginge "+str(count)+" enable pin GPIO"+str(track[2]),0)
+            self.__on_offs.append(OutputDevice(track[2],pin_factory=self.__factory))
+        else:
+            self.__on_offs.append(None)
+
     def __init_tracks(self):
         count = 0
         for track in self.__tracks:
-            self.__debug_print("* Initializeing enginge "+str(count)+" on pins GPIO"+str(track[0])+" and GPIO"+str(track[1]),0)
-            self.__choo_choos.append(Motor(track[0],track[1],pin_factory=self.__factory, pwm=True))
-            if len(track) == 3:
-                self.__debug_print("* Initializeing enginge "+str(count)+" enable pin GPIO"+str(track[2]),0)
-                self.__on_offs.append(OutputDevice(track[2],pin_factory=self.__factory))
-            else:
-                self.__on_offs.append(None)
+            self.__init_track(track,count)
             count += 1
         return self.set_track(0)
+
+    def __init_sensor(self,sensor_pin,count):
+        self.__debug_print("* Initializeing sensor "+str(count)+" on pin GPIO"+str(sensor_pin),0)
+        self.__sensors_gpio['GPIO'+str(sensor_pin)] = count
+        self.__sensors.append(Button(sensor_pin,pin_factory=self.__factory))
+        self.__sensors[count].when_released = self.__sensor_callback
 
     def __init_sensors(self):
         self.__max_sensors = len(self.__sensor_pins)
         count = 0
         for sensor_pin in self.__sensor_pins:
-            self.__debug_print("* Initializeing sensor "+str(count)+" on pin GPIO"+str(sensor_pin),0)
-            self.__sensors_gpio['GPIO'+str(sensor_pin)] = count
-            self.__sensors.append(Button(sensor_pin,pin_factory=self.__factory))
-            self.__sensors[count].when_released = self.__sensor_callback
+            self.__init_sensor(sensor_pin,count)
             count += 1
+
+    def __init_point(self,point_pin,count):
+        self.__debug_print("* Initializeing point "+str(count)+" on pin GPIO"+str(point_pin),0)
+        self.__points_gpio['GPIO'+str(point_pin)] = count
+        self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
 
     def __init_points(self):
         self.__max_points = len(self.__point_pins)
         count = 0
         for point_pin in self.__point_pins:
-            self.__debug_print("* Initializeing point "+str(count)+" on pin GPIO"+str(point_pin),0)
-            self.__points_gpio['GPIO'+str(point_pin)] = count
-            self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
+            self.__init_point(point_pin,count)
             count += 1
 
     def __sensor_callback(self,press):
@@ -232,11 +241,45 @@ class Track(object):
         return self.__dirlist[my_direction+1]
 
 
-    def __debug_print(self, message, dbg_level):
+    def __debug_print(self, message, dbg_level=0):
         if self.__debug >= dbg_level:
             print(message)
 
     # Public methods
+    def add_track(self,fwd_pin=None,rev_pin=None,enable_pin=None):
+        if fwd_pin != None and rev_pin != None:
+            if enable_pin != None:
+                new_track = [fwd_pin,rev_pin,enable_pin]
+            else:
+                new_track = [fwd_pin,rev_pin]
+            self.__tracks.append(new_track)
+            if self.__verify_pins():
+                self.__init_track(new_track,len(self.__choo_choos))
+            else:
+                remove_track = self.__tracks.pop()
+        else:
+            self.__debug_print("Invalid track definition")
+
+    def add_sensor(self,sensor_pin=None):
+        if sensor_pin != None:
+            self.__sensor_pins.append(sensor_pin)
+            if self.__verify_pins():
+                self.__init_sensor(sensor_pin,len(self.__sensors))
+            else:
+                remove_sensor = self.__sensor_pins.pop()
+        else:
+            self.__debug_print("No sensor provided to add")
+
+    def add_point(self,point_pin=None):
+        if point_pin != None:
+            self.__point_pins.append(point_pin)
+            if self.__verify_pins():
+                self.__init_point(point_pin,len(self.__sensors))
+            else:
+                remove_sensor = self.__point_pins.pop()
+        else:
+            self.__debug_print("No point provided to add")
+
     def sensor_id(self, pin=None):
         if 'GPIO'+str(pin) in self.__sensors_gpio.keys():
             return self.__sensors_gpio['GPIO'+str(pin)]
@@ -459,7 +502,7 @@ class Track(object):
                 t.stop(t.force_stop)
             > wait for a specific time
                 t.pause(<duration in seconds>)
-                              
+
             > Set point to state 0
                 t.point_state_0(<point_nr>)
             > Set point to state 1
@@ -473,7 +516,7 @@ class Track(object):
                 t.bind_sensor(<function>)
                 t.bind_speed(<function>)
                 t.bind_direction(<function>)
-            
+
             > Show current settings
                 t.show_settings()
             > sensor tracks (if multiple tracks are provided via the tracks parameter)

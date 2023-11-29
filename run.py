@@ -23,7 +23,7 @@ class run_train(object):
                 elif str(chkval).lower() in dir_fwd:
                     retval = 1
                 else:
-                    retval = errValueError   
+                    retval = errValueError
                     oldval = chkval+"*"
             else:
                 retval = int(chkval)
@@ -43,7 +43,8 @@ class run_train(object):
             print("Checking value for cmd_line ("+str(cmd_line)+") ("+type+"): ")
             print(value)
         if value[0] in [errIndexError,errNoValue]:
-            Err = ': value for '+__type+': is missing'
+            if __type != 'ENABLE':
+                Err = ': value for '+__type+': is missing'
         else:
             if value[0] == errValueError:
                 Err = ': invalid value for '+__type+': '+str(value[1])
@@ -104,6 +105,14 @@ class run_train(object):
                     __count = self.check_option(cmd,3)
                 elif cmd[1] == "point_state_0" or cmd[1] == "point_state_1" or cmd[1] == "point_toggle":
                     __point = self.check_option(cmd,2)
+                elif cmd[1] == 'add_sensor':
+                    __sensor = self.check_option(cmd,2)
+                elif cmd[1] == 'add_point':
+                    __sensor = self.check_option(cmd,2)
+                elif cmd[1] == 'add_track':
+                    __fwd = self.check_option(cmd,2)
+                    __rev = self.check_option(cmd,3)
+                    __ena = self.check_option(cmd,2)
                 elif cmd[1] not in ['stop']:
                     cmd_list['ERRORS'].append(str(cmd_line)+': Unknwon command '+str(cmd[1])+'.')
 
@@ -114,7 +123,9 @@ class run_train(object):
                 cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__sensor,'SENSOR')
                 cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__count,'COUNT')
                 cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__point,'POINT')
-                cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__force,'FORCE')
+                cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__fwd,'FORWARD')
+                cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__rev,'REVERSE')
+                cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__ena,'ENABLE')
 
         return cmd_list['ERRORS']
 
@@ -150,17 +161,23 @@ class run_train(object):
                 __sensor = self.check_option(cmd,2)[0]
                 __count = self.check_option(cmd,3)[0]
                 t.wait_for_sensor(__sensor, __count)
+            elif cmd[1] == 'add_sensor':
+                __sensor = self.check_option(cmd,2)[0]
+                t.add_sensor(__sensor)
+            elif cmd[1] == 'add_point':
+                __sensor = self.check_option(cmd,2)[0]
+                t.add_point(__sensor)
             elif cmd[1] == 'stop':
                 t.stop()
             elif cmd[1] == "point_state_0":
                 __point = self.check_option(cmd,2)[0]
-                t.point_state_0(__point) 
+                t.point_state_0(__point)
             elif cmd[1] == "point_state_1":
                 __point = self.check_option(cmd,2)[0]
-                t.point_state_1(__point) 
+                t.point_state_1(__point)
             elif cmd[1] == "point_toggle":
                 __point = self.check_option(cmd,2)[0]
-                t.point_toggle(__point) 
+                t.point_toggle(__point)
         return True
 
     def process_commands(self, t, cmd_options, debug):

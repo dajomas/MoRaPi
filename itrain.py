@@ -29,6 +29,32 @@ class iTrain(Cmd):
             print(cmd_list)
         self.__run.process_commands(self.track, cmd_list, self.debug)
 
+    def do_add_sensor(self,inp):
+        self.__process_command(inp,"add_sensor")
+
+    def do_add_point(self,inp):
+        self.__process_command(inp,"add_point")
+
+    def do_add_track(self,inp):
+        self.__process_command(inp,"add_track")
+
+    def do_add(self,inp):
+        l_inp = inp.split(" ")
+        if len(l_inp) > 0:
+            inp = " ".join(l_inp[1:])
+            if l_inp[0] == "track":
+                self.__process_command(inp, "add_track")
+            elif l_inp[0] == "sensor":
+                self.__process_command(inp, "set_sensor")
+            elif l_inp[0] == "point":
+                self.__process_command(inp, "set_point")
+            else:
+                print("\nInvalid command.\n")
+                self.do_show_help(inp)
+        else:
+            print("\nInvalid command.\n")
+            self.do_show_help(inp)
+
     def do_exit(self, inp):
         print("\nChoo Choo, Bey Bey...\n")
         return True
@@ -214,6 +240,18 @@ class iTrain(Cmd):
 
     def help_toggle(self):
         print("toggle_sensor_display can also be used with a space instead of an underscore")
+
+    def help_add(self):
+        print("add_track, add_sensor and add_point can also be used with a space instead of an underscore")
+
+    def help_add_track(self):
+        print("add_track <FORWARD PIN> <REVERSE PIN > [<ENABLE PIN>]")
+
+    def help_add_sensor(self):
+        print("add_sensor <SENSOR PIN>")
+
+    def help_add_point(self):
+        print("add_point <POINT PIN>")
 
     def help_set_speed(self):
         print("set_speed <SPEED> <DIRECTION>")
