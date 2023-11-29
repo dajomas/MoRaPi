@@ -83,6 +83,9 @@ class run_track(object):
                 __duration = [okIgnore,okIgnore]
                 __sensor = [okIgnore,okIgnore]
                 __count = [okIgnore,okIgnore]
+                __fwd = [okIgnore,okIgnore]
+                __rev = [okIgnore,okIgnore]
+                __ena = [okIgnore,okIgnore]
                 if cmd[1] == 'set_track':
                     __track = self.check_option(cmd,2,False)
                 elif cmd[1] == 'set_speed':
