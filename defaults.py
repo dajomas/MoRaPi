@@ -1,10 +1,10 @@
-dir_rev = ["-1","r","reverse","b","back","backward"]
-dir_stop = ["0","s","stop"]
-dir_fwd = ["1","f","forward"]
+dir_rev = ['-1','r','reverse','b','back','backward']
+dir_stop = ['0','s','stop']
+dir_fwd = ['1','f','forward']
 
 valid_direction = dir_rev+dir_stop+dir_fwd
 
-help_text = '''--script and --program command format:
+help_text = """--script and --program command format:
     <ORDER> <COMMAND> <OPTION> [<OPTION> ...]
     Where:
         <ORDER>     Number to designate the order of execution,
@@ -45,11 +45,11 @@ help_text = '''--script and --program command format:
                         ENABLE PIN  GPIO number of the enable pin
                         SENSOR PIN  GPIO number of the sensor pin
                         POINT PIN   GPIO number of the point pin
-                        '''
+                        """
 
 presets = [
-    ["MotorShield Motor A",27,22,17],
-    ["MotorShield Motor B",23,24,15],
-    ["MotorShield Motor C",9,11,10],
-    ["MotorShield Motor D",8,7,12],
+    ['MotorShield Motor A',27,22,17],
+    ['MotorShield Motor B',23,24,15],
+    ['MotorShield Motor C',9,11,10],
+    ['MotorShield Motor D',8,7,12],
 ]

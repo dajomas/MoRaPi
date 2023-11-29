@@ -24,7 +24,7 @@ class run_track(object):
                     retval = 1
                 else:
                     retval = errValueError
-                    oldval = chkval+"*"
+                    oldval = chkval+'*'
             else:
                 retval = int(chkval)
         except ValueError:
@@ -40,7 +40,7 @@ class run_track(object):
         __type = str(type).upper()
         Err = ''
         if self.__debug > 1:
-            print("Checking value for cmd_line ("+str(cmd_line)+") ("+type+"): ")
+            print('Checking value for cmd_line ('+str(cmd_line)+') ('+type+'): ')
             print(value)
         if value[0] in [errIndexError,errNoValue]:
             if __type != 'ENABLE':
@@ -69,7 +69,7 @@ class run_track(object):
             if len(cmd) == 0:
                 continue
             if self.__debug > 1:
-                print("Processing command:")
+                print('Processing command:')
                 print(cmd)
             if cmd[0] in cmd_list['CMDS']:
                 cmd_list['ERRORS'].append(str(cmd_line)+': Order '+str(cmd[0])+' already exists.')
@@ -103,7 +103,7 @@ class run_track(object):
                 elif cmd[1] == 'wait_for_sensor':
                     __sensor = self.check_option(cmd,2)
                     __count = self.check_option(cmd,3)
-                elif cmd[1] == "point_state_0" or cmd[1] == "point_state_1" or cmd[1] == "point_toggle":
+                elif cmd[1] == 'point_state_0' or cmd[1] == 'point_state_1' or cmd[1] == 'point_toggle':
                     __point = self.check_option(cmd,2)
                 elif cmd[1] == 'add_sensor':
                     __sensor = self.check_option(cmd,2)
@@ -133,7 +133,7 @@ class run_track(object):
         cmd_line = 0
         for cmd in sorted(cmd_line_options, key=lambda x:x[0]):
             if self.__debug > 0:
-                print("Executing command: "+" ".join(str(x) for x in cmd))
+                print('Executing command: '+' '.join(str(x) for x in cmd))
             cmd_line += 1
             if cmd[1] == 'set_track':
                 __track = self.check_option(cmd,2,False)[0]
@@ -169,13 +169,13 @@ class run_track(object):
                 t.add_point(__sensor)
             elif cmd[1] == 'stop':
                 t.stop()
-            elif cmd[1] == "point_state_0":
+            elif cmd[1] == 'point_state_0':
                 __point = self.check_option(cmd,2)[0]
                 t.point_state_0(__point)
-            elif cmd[1] == "point_state_1":
+            elif cmd[1] == 'point_state_1':
                 __point = self.check_option(cmd,2)[0]
                 t.point_state_1(__point)
-            elif cmd[1] == "point_toggle":
+            elif cmd[1] == 'point_toggle':
                 __point = self.check_option(cmd,2)[0]
                 t.point_toggle(__point)
         return True
@@ -184,7 +184,7 @@ class run_track(object):
         self.__debug = debug
         error_list = self.verify_program(cmd_options)
         if len(error_list) > 0:
-            print("Errors found in commands:")
+            print('Errors found in commands:')
             for Err in error_list:
                 print(Err)
             return False
@@ -192,4 +192,4 @@ class run_track(object):
             return self.run_program(t, cmd_options)
 
 if __name__ == '__main__':
-    print("This Python script can not be used standalone.")
+    print('This Python script can not be used standalone.')

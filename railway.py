@@ -8,7 +8,7 @@ MAX_SPEED = 1.0
 
 class Track(object):
 
-    def __init__(self, name="track",
+    def __init__(self, name='track',
                  host='localhost', port=8888,
                  pin_enable=None, pin_fwd=17, pin_rev=18, tracks=[],
                  max_speed=1.0, steps=10, ctime=5,
@@ -120,29 +120,29 @@ class Track(object):
         for track in self.__tracks:
             for pin in track:
                 if str(pin) in pins.keys():
-                    self.__debug_print("! Duplicate pins found: GPIO"+str(pin),0)
+                    self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
                     ret = False
                 else:
                     pins[str(pin)] = pin
         for pin in  self.__sensor_pins:
             if str(pin) in pins.keys():
-                self.__debug_print("! Duplicate pins found: GPIO"+str(pin),0)
+                self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
                 ret = False
             else:
                 pins[str(pin)] = pin
         for pin in  self.__point_pins:
             if str(pin) in pins.keys():
-                self.__debug_print("! Duplicate pins found: GPIO"+str(pin),0)
+                self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
                 ret = False
             else:
                 pins[str(pin)] = pin
         return ret
 
     def __init_track(self,track,count):
-        self.__debug_print("* Initializeing enginge "+str(count)+" on pins GPIO"+str(track[0])+" and GPIO"+str(track[1]),0)
+        self.__debug_print('* Initializeing enginge '+str(count)+' on pins GPIO'+str(track[0])+' and GPIO'+str(track[1]),0)
         self.__choo_choos.append(Motor(track[0],track[1],pin_factory=self.__factory, pwm=True))
         if len(track) == 3:
-            self.__debug_print("* Initializeing enginge "+str(count)+" enable pin GPIO"+str(track[2]),0)
+            self.__debug_print('* Initializeing enginge '+str(count)+' enable pin GPIO'+str(track[2]),0)
             self.__on_offs.append(OutputDevice(track[2],pin_factory=self.__factory))
         else:
             self.__on_offs.append(None)
@@ -155,7 +155,7 @@ class Track(object):
         return self.set_track(0)
 
     def __init_sensor(self,sensor_pin,count):
-        self.__debug_print("* Initializeing sensor "+str(count)+" on pin GPIO"+str(sensor_pin),0)
+        self.__debug_print('* Initializeing sensor '+str(count)+' on pin GPIO'+str(sensor_pin),0)
         self.__sensors_gpio['GPIO'+str(sensor_pin)] = count
         self.__sensors.append(Button(sensor_pin,pin_factory=self.__factory))
         self.__sensors[count].when_released = self.__sensor_callback
@@ -168,7 +168,7 @@ class Track(object):
             count += 1
 
     def __init_point(self,point_pin,count):
-        self.__debug_print("* Initializeing point "+str(count)+" on pin GPIO"+str(point_pin),0)
+        self.__debug_print('* Initializeing point '+str(count)+' on pin GPIO'+str(point_pin),0)
         self.__points_gpio['GPIO'+str(point_pin)] = count
         self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
 
@@ -202,7 +202,7 @@ class Track(object):
     def __speed_up (self, new_speed,direction=1, force=False):
         if new_speed > self.__max_speed:
             new_speed = self.__max_speed
-        self.__debug_print("Speeding up: going "+self.__which_direction_is(direction)+" to "+str(round(new_speed*100,0))+"%",1)
+        self.__debug_print('Speeding up: going '+self.__which_direction_is(direction)+' to '+str(round(new_speed*100,0))+'%',1)
         speed = self.__current_speed
         while round(speed,3) < round(new_speed,3):
             if force:
@@ -217,7 +217,7 @@ class Track(object):
     def __slow_down (self, new_speed=0, force=False):
         if new_speed < 0:
             new_speed = 0
-        self.__debug_print("Slowing down: going "+self.__which_direction_is(self.__current_direction)+" to "+str(round(new_speed*100,0))+"%",1)
+        self.__debug_print('Slowing down: going '+self.__which_direction_is(self.__current_direction)+' to '+str(round(new_speed*100,0))+'%',1)
         speed = self.__current_speed
         while round(speed,3) > round(new_speed,3):
             if force:
@@ -270,7 +270,7 @@ class Track(object):
             else:
                 remove_track = self.__tracks.pop()
         else:
-            self.__debug_print("Invalid track definition")
+            self.__debug_print('Invalid track definition')
 
     def add_sensor(self,sensor_pin=None):
         if sensor_pin != None:
@@ -280,7 +280,7 @@ class Track(object):
             else:
                 remove_sensor = self.__sensor_pins.pop()
         else:
-            self.__debug_print("No sensor provided to add")
+            self.__debug_print('No sensor provided to add')
 
     def add_point(self,point_pin=None):
         if point_pin != None:
@@ -290,7 +290,7 @@ class Track(object):
             else:
                 remove_sensor = self.__point_pins.pop()
         else:
-            self.__debug_print("No point provided to add")
+            self.__debug_print('No point provided to add')
 
     def sensor_id(self, pin=None):
         if 'GPIO'+str(pin) in self.__sensors_gpio.keys():
@@ -316,7 +316,7 @@ class Track(object):
             self.__set_current_track(track_nr)
             return True
         else:
-            self.__debug_print("Invalid track number: "+str(track_nr)+". Not changing track.",0)
+            self.__debug_print('Invalid track number: '+str(track_nr)+'. Not changing track.',0)
             return False
 
     def bind_track(self, callback):
@@ -333,12 +333,12 @@ class Track(object):
 
     def on(self):
         if self.use_enable_pin != None and self.__on_off.value == 0:
-            self.__debug_print("Turn track on", 1)
+            self.__debug_print('Turn track on', 1)
             self.__on_off.on()
 
     def off(self):
         if self.use_enable_pin != None and self.__on_off.value == 1:
-            self.__debug_print("Turn track off",1)
+            self.__debug_print('Turn track off',1)
             self.__on_off.off()
 
     def set_speed (self, speed=0, direction=1, force=False):
@@ -348,22 +348,22 @@ class Track(object):
             speed = 0
         if speed > self.__max_speed:
             speed = self.__max_speed
-        self.__debug_print("* new speed = "+str(speed)+" new direction = "+str(direction),3)
-        self.__debug_print("* current speed = "+str(self.__current_speed)+" current direction = "+str(self.__current_direction),3)
+        self.__debug_print('* new speed = '+str(speed)+' new direction = '+str(direction),3)
+        self.__debug_print('* current speed = '+str(self.__current_speed)+' current direction = '+str(self.__current_direction),3)
         if direction != self.__current_direction and direction != 0 and self.__current_direction != 0:
-            self.__debug_print("Chaning direction from "+self.__which_direction_is(self.__current_direction)+" to "+self.__which_direction_is(direction),2)
+            self.__debug_print('Chaning direction from '+self.__which_direction_is(self.__current_direction)+' to '+self.__which_direction_is(direction),2)
             self.__slow_down()
             self.__set_current_speed(0)
             self.__set_current_direction(direction)
             self.__speed_up(speed, direction)
         elif (round(abs(self.__current_speed-speed),3) > self.__speed_change) and not force:
-            self.__debug_print("Speed difference is greater than speed_change ("+str(round(abs(self.__current_speed-speed),3))+" > "+str(self.__speed_change)+")",2)
+            self.__debug_print('Speed difference is greater than speed_change ('+str(round(abs(self.__current_speed-speed),3))+' > '+str(self.__speed_change)+')',2)
             if speed > self.__current_speed:
                 self.__speed_up(speed,direction)
             elif speed < self.__current_speed:
                 self.__slow_down(speed)
         else:
-            self.__debug_print("Set speed "+str(round(speed*100,2))+"%; direction: "+str(self.__which_direction_is(direction)),2)
+            self.__debug_print('Set speed '+str(round(speed*100,2))+'%; direction: '+str(self.__which_direction_is(direction)),2)
             self.__set_current_direction(direction)
             self.__set_current_speed(speed)
             if (direction == self.go_forward):
@@ -382,7 +382,7 @@ class Track(object):
             self.__slow_down(0)
 
     def pause(self, delay):
-        self.__debug_print("Wait for "+str(delay)+" second",1)
+        self.__debug_print('Wait for '+str(delay)+' second',1)
         sleep(delay)
 
     def run_for(self, speed=1, direction=1, delay=10):
@@ -396,7 +396,7 @@ class Track(object):
         if not self.__is_enabled():
             return
         if not self.__is_valid_sensor(sensor_nr):
-            self.__debug_print("Invalid sensor: "+str(sensor_nr),0)
+            self.__debug_print('Invalid sensor: '+str(sensor_nr),0)
             return
         self.set_speed(speed,direction)
         self.wait_for_sensor(sensor_nr,count)
@@ -406,12 +406,12 @@ class Track(object):
         if not self.__is_enabled():
             return
         if not self.__is_valid_sensor(sensor_nr):
-            self.__debug_print("Invalid sensor: "+str(sensor_nr),0)
+            self.__debug_print('Invalid sensor: '+str(sensor_nr),0)
             return
         if sensor_nr < self.__max_sensors:
             counter = count
             while counter > 0:
-                self.__debug_print("sensor "+str(sensor_nr)+" to pass "+str(counter)+" times",1)
+                self.__debug_print('sensor '+str(sensor_nr)+' to pass '+str(counter)+' times',1)
                 self.__sensors[sensor_nr].wait_for_press()
                 self.__sensors[sensor_nr].wait_for_release()
                 counter -= 1
@@ -419,67 +419,67 @@ class Track(object):
                     self.pause(1)
 
     def point_state_0(self, point_nr):
-        self.__debug_print("Point "+str(point_nr)+" to state 0",1)
+        self.__debug_print('Point '+str(point_nr)+' to state 0',1)
         if point_nr < self.__max_points:
             if self.__points[point_nr].value == 1:
                 self.__points[point_nr].off()
 
     def point_state_1(self, point_nr):
-        self.__debug_print("Point "+str(point_nr)+" to state 1",1)
+        self.__debug_print('Point '+str(point_nr)+' to state 1',1)
         if point_nr < self.__max_points:
             if self.__points[point_nr].value == 0:
                 self.__points[point_nr].on()
 
     def point_toggle(self, point_nr):
-        self.__debug_print("Point "+str(point_nr)+" to toggle (from state "+str(self.__points[point_nr].value)+")",1)
+        self.__debug_print('Point '+str(point_nr)+' to toggle (from state '+str(self.__points[point_nr].value)+')',1)
         if point_nr < self.__max_points:
             self.__points[point_nr].toggle()
 
     def show_settings(self):
-        print("Settings:")
-        print("  track name:                        "+self.__name)
-        print("  Host:                              "+self.__host)
-        print("  Port:                              "+str(self.__port))
-        print("  Current track:                     "+str(self.__current_track))
+        print('Settings:')
+        print('  track name:                        '+self.__name)
+        print('  Host:                              '+self.__host)
+        print('  Port:                              '+str(self.__port))
+        print('  Current track:                     '+str(self.__current_track))
         if self.__current_track != None:
-            print("    Forward GPIO pin: "+str(self.__tracks[self.__current_track][0]))
-            print("    Reverse GPIO pin: "+str(self.__tracks[self.__current_track][1]))
+            print('    Forward GPIO pin: '+str(self.__tracks[self.__current_track][0]))
+            print('    Reverse GPIO pin: '+str(self.__tracks[self.__current_track][1]))
             if len(self.__tracks[self.__current_track]) == 3:
-                print("    Enable GPIO pin:  "+str(self.__tracks[self.__current_track][2]))
-                print("    Enable status:    "+str(self.__on_offs[self.__current_track].value))
-        print("  Max speed:                         "+str(self.__max_speed))
-        print("  Accelleration/Decelleration steps: "+str(self.__steps))
-        print("  Accelleration/Decelleration time:  "+str(self.__ctime))
-        print("  - Speed change per step:           "+str(round(self.__speed_change,3)))
-        print("  - Delay per speed change step:     "+str(round(self.__acc_delay,3)))
-        print("  sensor pins:                       "+" ".join(str(x) for x in self.__sensor_pins))
-        print("  Debug level:                       "+str(self.__debug))
-        print("")
-        print("Current stats:")
-        print("  Available tracks:")
+                print('    Enable GPIO pin:  '+str(self.__tracks[self.__current_track][2]))
+                print('    Enable status:    '+str(self.__on_offs[self.__current_track].value))
+        print('  Max speed:                         '+str(self.__max_speed))
+        print('  Accelleration/Decelleration steps: '+str(self.__steps))
+        print('  Accelleration/Decelleration time:  '+str(self.__ctime))
+        print('  - Speed change per step:           '+str(round(self.__speed_change,3)))
+        print('  - Delay per speed change step:     '+str(round(self.__acc_delay,3)))
+        print('  sensor pins:                       '+' '.join(str(x) for x in self.__sensor_pins))
+        print('  Debug level:                       '+str(self.__debug))
+        print('')
+        print('Current stats:')
+        print('  Available tracks:')
         count = 0
         for track in self.__tracks:
-            print("    track: "+str(count))
-            print("      Forward GPIO pin: "+str(track[0]))
-            print("      Reverse GPIO pin: "+str(track[1]))
+            print('    track: '+str(count))
+            print('      Forward GPIO pin: '+str(track[0]))
+            print('      Reverse GPIO pin: '+str(track[1]))
             if len(track) == 3:
-                print("      Enable GPIO pin:  "+str(track[2]))
+                print('      Enable GPIO pin:  '+str(track[2]))
             count += 1
-        print("  Available sensore pins:")
+        print('  Available sensore pins:')
         count = 0
         for pin in self.__sensor_pins:
-            print("    sensor "+str(count)+" on GPIO"+str(pin))
+            print('    sensor '+str(count)+' on GPIO'+str(pin))
             count += 1
-        print("  Available points:")
+        print('  Available points:')
         count = 0
         for pin in self.__point_pins:
-            print("    Point "+str(count)+" on GPIO"+str(pin)+" (status "+str(self.__points[count].value)+")")
+            print('    Point '+str(count)+' on GPIO'+str(pin)+' (status '+str(self.__points[count].value)+')')
             count += 1
-        print("  Current speed:     "+str(round(self.__current_speed,3)))
-        print("  Current direction: "+self.__which_direction_is(self.__current_direction))
+        print('  Current speed:     '+str(round(self.__current_speed,3)))
+        print('  Current direction: '+self.__which_direction_is(self.__current_direction))
 
     def help(self):
-        print(textwrap.dedent('''\
+        print(textwrap.dedent("""\
             Initialize a track:
 
             t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, sensor_pins, point_pins debug, help)
@@ -542,5 +542,5 @@ class Track(object):
                 t.on()
             > Turn track off if an enable pin is used
                 t.off()
-        '''))
+        """))
 
