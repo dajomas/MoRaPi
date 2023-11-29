@@ -51,12 +51,30 @@ def process_args():
     parser.add_argument("--script", dest='script', type=argparse.FileType('r'), help="scriptfile containing a command per line. (See explanation below)")
     parser.add_argument("--program", nargs='*', action='append', dest='cmd_options', help="run set_speed, run_for or run_until with options. (See explanation below)")
     parser.add_argument("--save", dest="file", type=argparse.FileType('w'), help="Save program steps to file (only use with program)")
+
+    parser.add_argument("--list-presets", dest="list_presets", default=False, action='store_true',help="List all available presets (use the preset number with --preset)")
+    parser.add_argument("--preset", dest="presets", action='append', type=int, default=[], help="use predefined presets to configure a track segment (can be used multiple times)")
     return parser.parse_args()
 
 def main():
     args = process_args()
 
     DEBUG = args.debug
+
+    if args.list_presets:
+        count = 0
+        for preset in presets:
+            if len(preset) == 4:
+                enable = preset[3]
+            else:
+                enable = "None"
+            print(str(count)+' => '+preset[0]+' (fwd: '+str(preset[1])+', rev:'+str(preset[2])+', enable: '+str(enable)+')')
+            count += 1
+        return
+
+    if len(args.presets) > 0:
+        for preset in args.presets:
+            args.tracks.append(presets[preset][1:])
 
     if DEBUG > 1:
         print(args)

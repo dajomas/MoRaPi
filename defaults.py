@@ -36,3 +36,8 @@ help_text = '''--script and --program command format:
                         POINT       Point number as defined by the --point options.
                                     0-based so the first --point option is POINT 0
                         COUNT       Number of times the sensor should be triggered'''
+presets = [
+    ["MotorShield Motor A",27,22,17],
+    ["MotorShield Motor B",23,24,15],
+    ["MotorShield Motor C",9,11,10],
+    ["MotorShield Motor D",8,7,12],
