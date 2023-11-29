@@ -53,3 +53,28 @@ presets = [
     ['MotorShield Motor C',9,11,10],
     ['MotorShield Motor D',8,7,12],
 ]
+
+default_args = {
+    'debug': 0,
+    'name': 'track',
+    'function': 'interactive',
+    'host': 'localhost',
+    'port': 8888,
+    'steps': 10,
+    'ctime': 5,
+    'list_presets': False,
+    'presets': [],
+    'pin_fwd': 17,
+    'pin_rev': 18,
+    'pin_enable': None,
+    'tracks': [],
+    'sensor_pins': [],
+    'point_pins': [],
+    'speed': 1,
+    'direction': 1,
+    'duration': 10,
+    'count': 1,
+    'script': None,
+    'cmd_options': None,
+    'file': None
+}
