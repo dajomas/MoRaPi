@@ -5,7 +5,7 @@ errNoValue = -1000
 errValueError = -1001
 errIndexError = -1002
 
-class run_train(object):
+class run_track(object):
     def check_option(self, options, optnr, dofloat=False, doBool=False, doDir=False):
         retval = errNoValue
         oldval = errNoValue

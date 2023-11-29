@@ -1,19 +1,19 @@
 import textwrap
 from cmd import Cmd
-from run import run_train
+from run import run_track
 from defaults import *
 
-class iTrain(Cmd):
-    prompt = "iTrain> "
-    intro = "Welcome to the Interactive Train operations! Type ? to list commands, or show_help for extensive help"
+class iTrack(Cmd):
+    prompt = "iTrack> "
+    intro = "Welcome to the Interactive Track operations! Type ? to list commands, or show_help for extensive help"
     def __init__(self, completekey='tab', stdin=None, stdout=None, track=None, debug=0):
-        super(iTrain, self).__init__(completekey, stdin, stdout)
+        super(iTrack, self).__init__(completekey, stdin, stdout)
 
         self.track = track
         self.track.bind_sensors(self.__sensor_callback)
         self.__show_sensor_trigger = True
         self.debug = debug
-        self.__run = run_train()
+        self.__run = run_track()
         print("\n** Tracks:")
         print(self.track.tracks)
 
@@ -207,8 +207,8 @@ class iTrain(Cmd):
                 self.do_show_settings(inp)
             elif l_inp[0] == "help":
                 self.do_show_help(inp)
-            elif l_inp[0] == "train" and len(l_inp) > 1 and l_inp[1] == "help":
-                self.do_show_train_help(inp)
+            elif l_inp[0] == "track" and len(l_inp) > 1 and l_inp[1] == "help":
+                self.do_show_track_help(inp)
             else:
                 print("\nInvalid command.\n")
                 self.do_show_help(inp)
@@ -225,7 +225,7 @@ class iTrain(Cmd):
     def do_show_help(self,inp):
         print(textwrap.dedent(help_text))
 
-    def do_show_train_help(self,inp):
+    def do_show_track_help(self,inp):
         self.track.help()
 
     def help_exit(self):
@@ -238,7 +238,7 @@ class iTrain(Cmd):
         print("run_for, run_until and run_script can also be used with a space instead of an underscore")
 
     def help_show(self):
-        print("show_settings/show_status, show_help and show_train_help can also be used with a space instead of an underscore")
+        print("show_settings/show_status, show_help and show_track_help can also be used with a space instead of an underscore")
 
     def help_point(self):
         print("point_state_0/point_state_1, point_toggle can also be used with a space instead of an underscore")
@@ -270,7 +270,7 @@ class iTrain(Cmd):
     def help_show_help(self):
         print("show extensive help")
 
-    def help_show_train_help(self):
+    def help_show_track_help(self):
         print("show help from the track class")
 
     def help_show_settings(self):

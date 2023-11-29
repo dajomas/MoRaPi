@@ -2,8 +2,8 @@
 import argparse
 import textwrap
 
-from run import run_train
-from itrain import iTrain
+from run import run_track
+from itrack import iTrack
 from railway import Track
 from defaults import *
 
@@ -27,7 +27,7 @@ def process_args():
                                      epilog=textwrap.dedent(help_text))
 
     parser.add_argument("-v","--v","--verbose", dest='debug', action='count', default=0, help="increase verbosity, more v's is more output (default: 0)")
-    parser.add_argument("--name", dest='name', type=str, action='store', default="train", help="Name of the train (default: train)")
+    parser.add_argument("--name", dest='name', type=str, action='store', default="track", help="Name of the track (default: track)")
 
     parser.add_argument("-f","--f","--function", choices=["set_speed","run_for","run_until","demo","program","script","interactive"], type=str, dest='function', default="interactive", help="Function to run (default: interactive)")
 
@@ -111,7 +111,7 @@ def main():
                 print("Set speed to "+str(round(args.speed,3))+" going "+t.which_direction_is(args.direction)+" and the sensor at GPIO pin "+str(args.sensor_pins[0])+" triggers "+str(args.count)+" times")
             t.run_until(args.speed, args.direction, sensor_nr=args.sensor_pins[0], count=args.count)
     elif args.function == "program":
-        run = run_train()
+        run = run_track()
         if run.process_commands(t, args.cmd_options, DEBUG) and args.file is not None:
             args.file.write("\n".join([' '.join(map(str,one_cmd)) for one_cmd in args.cmd_options]))
             args.file.write("\n")
@@ -127,10 +127,10 @@ def main():
         if DEBUG > 1:
             print("Read commands from file:")
             print(cmd_list)
-        run = run_train()
+        run = run_track()
         run.process_commands(t, cmd_list, DEBUG)
     elif args.function == "interactive":
-        iTrain(track=t, debug=DEBUG).cmdloop()
+        iTrack(track=t, debug=DEBUG).cmdloop()
 
     # demo0()
 
