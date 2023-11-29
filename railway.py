@@ -276,6 +276,7 @@ class Track(object):
         if sensor_pin != None:
             self.__sensor_pins.append(sensor_pin)
             if self.__verify_pins():
+                self.__max_sensors = len(self.__sensor_pins)
                 self.__init_sensor(sensor_pin,len(self.__sensors))
             else:
                 remove_sensor = self.__sensor_pins.pop()
