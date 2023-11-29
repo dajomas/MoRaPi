@@ -14,6 +14,14 @@ class iTrain(Cmd):
         self.__show_sensor_trigger = True
         self.debug = debug
         self.__run = run_train()
+        print("\n** Tracks:")
+        print(self.track.tracks)
+
+        print("** Sensors:")
+        print(self.track.sensors)
+
+        print("** Points:")
+        print(self.track.points)
 
     def __sensor_callback(self,press):
         if self.__show_sensor_trigger:

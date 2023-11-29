@@ -90,6 +90,18 @@ class Track(object):
     def direction_str(self) -> str:
         return self.__which_direction_is(self.__current_direction)
 
+    @property
+    def tracks(self) -> list:
+        return self.__tracks
+
+    @property
+    def sensors(self) -> list:
+        return self.__sensor_pins
+
+    @property
+    def points(self) -> list:
+        return self.__point_pins
+
     # Private methods
     def __reset(self):
         self.__choo_choos = []
