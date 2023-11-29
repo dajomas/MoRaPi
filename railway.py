@@ -223,7 +223,6 @@ class Track(object):
 
     def __full_stop(self):
         self.__choo_choo.stop()
-        self.__set_current_direction(0)
 
     def __is_enabled(self):
         if self.use_enable_pin != None and self.__on_off.value == 0:
@@ -344,7 +343,6 @@ class Track(object):
         if direction != self.direction and direction != 0 and self.direction != 0:
             self.__debug_print('Chaning direction from '+self.__which_direction_is(self.direction)+' to '+self.__which_direction_is(direction),2)
             self.__slow_down()
-            self.__set_current_direction(direction)
             self.__speed_up(speed, direction)
         elif (round(abs(self.speed-speed),3) > self.__speed_change) and not force:
             self.__debug_print('Speed difference is greater than speed_change ('+str(round(abs(self.speed-speed),3))+' > '+str(self.__speed_change)+')',2)
@@ -354,7 +352,6 @@ class Track(object):
                 self.__slow_down(speed)
         else:
             self.__debug_print('Set speed '+str(round(speed*100,2))+'%; direction: '+str(self.__which_direction_is(direction)),2)
-            self.__set_current_direction(direction)
             if (direction == self.go_forward):
                 self.__choo_choo.forward(speed)
             elif (direction == self.go_backward):
