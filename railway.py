@@ -522,6 +522,11 @@ class Track(object):
             > Toggle point state
                 t.point_toggle(<point_nr>)
 
+            > Add another track, sensor or point after initialization
+                t.add_track(<forward pin>, <reverse pin>[, <enable pin>])
+                t.add_sensor(<sensor pin>)
+                t.add_point(<point pin>)
+
             > Add callback function to monitor track, sensors, speed and direction. Can be called multiple times to add multiple callback functions.
               Each time speed or direction changes, a different track is activated or a sensor is triggered, all bound functions are called with the new speed or direction, the track number or the sensor object as argument
                 t.bind_track(<function>)
