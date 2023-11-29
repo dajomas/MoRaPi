@@ -424,6 +424,29 @@ class Track(object):
         if point_nr < self.__max_points:
             self.__points[point_nr].toggle()
 
+    def get_track_status(self, track_nr):
+        if track_nr < len(self.__choo_choos):
+            query_track = self.__choo_choos[track_nr]
+            fwd_pin = int(str(query_track[0].pin)[4:])
+            rev_pin = int(str(query_track[1].pin)[4:])
+            if self.__on_offs[track_nr] != None:
+                ena_pin = int(str(self.__on_offs[0].pin)[4:])
+            else:
+                ena_pin = None
+            speed = round(abs(query_track.value),3)
+            if speed > 0:
+                direction = int(query_track.value/speed)
+            else:
+                direction = 0
+            retval = {}
+            retval['forward_pin'] = fwd_pin
+            retval['reverse_pin'] = rev_pin
+            retval['enable_pin'] = ena_pin
+            retval['speed'] = speed
+            retval['direction'] = direction
+
+            return retval
+
     def show_settings(self):
         print('Settings:')
         print('  track name:                        '+self.__name)
@@ -447,12 +470,15 @@ class Track(object):
         print('Current stats:')
         print('  Available tracks:')
         count = 0
-        for track in self.__tracks:
+        while count < len(self.__choo_choos):
+            track = self.get_track_status(count)
             print('    track: '+str(count))
-            print('      Forward GPIO pin: '+str(track[0]))
-            print('      Reverse GPIO pin: '+str(track[1]))
-            if len(track) == 3:
-                print('      Enable GPIO pin:  '+str(track[2]))
+            print('      Forward GPIO pin: '+str(track['forward_pin']))
+            print('      Reverse GPIO pin: '+str(track['reverse_pin']))
+            if track['enable_pin'] != None:
+                print('      Enable GPIO pin:  '+str(track['enable_pin']))
+            print('      Speed           : '+str(track['speed']))
+            print('      Direction       : '+self.__which_direction_is(track['direction']))
             count += 1
         print('  Available sensore pins:')
         count = 0
