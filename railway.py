@@ -185,6 +185,10 @@ class Track(object):
             for callback in self.__sensor_observers:
                 callback(press)
 
+    def __speed_callback(self,):
+        for callback in self.__speed_observers:
+            callback(self.__current_track, self.speed)
+
     def __set_current_track(self, new_track):
         self.__current_track = new_track
         for callback in self.__track_observers:
@@ -354,8 +358,10 @@ class Track(object):
             self.__debug_print('Set speed '+str(round(speed*100,2))+'%; direction: '+str(self.__which_direction_is(direction)),2)
             if (direction == self.go_forward):
                 self.__choo_choo.forward(speed)
+                self.__speed_callback()
             elif (direction == self.go_backward):
                 self.__choo_choo.backward(speed)
+                self.__speed_callback()
             else:
                 self.__full_stop()
 
