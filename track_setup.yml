@@ -1,0 +1,15 @@
+tracks:
+  pin_factories:
+    host:
+    port:
+  track_segment:
+    pin_factory:
+    fwd_pin:
+    rev_pin:
+    enable_pin:
+  switch:
+    pin_factory:
+    switch_pin:
+  points:
+    pin_factory:
+    point_pin:
