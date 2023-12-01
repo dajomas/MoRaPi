@@ -47,7 +47,7 @@ class Track(object):
         except:
             self.__debug_print('Unable to connection to '+str(self.__host)+':'+str(self.__port))
             return
-        
+
         self.__dirlist = ['backward','stop','forward']
         self.__speed_change = round(self.__max_speed / self.__steps,3)
         self.__acc_delay = round(self.__ctime / self.__steps,3)
@@ -179,6 +179,8 @@ class Track(object):
         self.__debug_print('* Initializeing point '+str(count)+' on pin GPIO'+str(point_pin),0)
         self.__points_gpio['GPIO'+str(point_pin)] = count
         self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
+        self.__points[count].active_high = False
+        self.__points[count].off()
 
     def __init_points(self):
         self.__max_points = len(self.__point_pins)
