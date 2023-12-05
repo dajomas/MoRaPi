@@ -101,7 +101,13 @@ class Track(object):
 
     @property
     def tracks(self) -> list:
-        return self.__tracks
+        count = 0
+        tracks = []
+        while count < len(self.__choo_choos):
+            tracks.append(self.get_track_status(count))
+            count += 1
+
+        return tracks
 
     @property
     def sensors(self) -> list:
@@ -109,7 +115,12 @@ class Track(object):
 
     @property
     def points(self) -> list:
-        return self.__point_pins
+        count = 0
+        points = []
+        for pin in self.__point_pins:
+            points.append({ 'GPIO': pin,'status':self.__points[count].value})
+            count += 1
+        return points
 
     # Private methods
     def __reset(self):
