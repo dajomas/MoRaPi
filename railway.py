@@ -25,6 +25,7 @@ class Track(object):
         self.__speed_observers = []
         self.__direction_observers = []
         self.__sensor_observers = []
+        self.__debug_observers = []
 
         self.__name = name
         self.__host = host
@@ -257,7 +258,11 @@ class Track(object):
 
     def __debug_print(self, message, dbg_level=0):
         if self.__debug >= dbg_level:
-            print(message)
+            if len(self.__debug_observers) == 0:
+                print(message)
+            else:
+                for callback in self.__debug_observers:
+                    callback(message)
 
     # Public methods
     def add_track(self,fwd_pin=None,rev_pin=None,enable_pin=None):
@@ -333,6 +338,9 @@ class Track(object):
 
     def bind_direction(self, callback):
         self.__direction_observers.append(callback)
+
+    def bind_debug(self, callback):
+        self.__debug_observers.append(callback)
 
     def on(self):
         if self.use_enable_pin != None and self.__on_off.value == 0:
@@ -460,53 +468,53 @@ class Track(object):
             return retval
 
     def show_settings(self):
-        print('Settings:')
-        print('  track name:                        '+self.__name)
-        print('  Host:                              '+self.__host)
-        print('  Port:                              '+str(self.__port))
-        print('  Current track:                     '+str(self.__current_track))
+        self.__debug_print('Settings:')
+        self.__debug_print('  track name:                        '+self.__name,0)
+        self.__debug_print('  Host:                              '+self.__host,0)
+        self.__debug_print('  Port:                              '+str(self.__port),0)
+        self.__debug_print('  Current track:                     '+str(self.__current_track),0)
         if self.__current_track != None:
-            print('    Forward GPIO pin: '+str(self.__tracks[self.__current_track][0]))
-            print('    Reverse GPIO pin: '+str(self.__tracks[self.__current_track][1]))
+            self.__debug_print('    Forward GPIO pin: '+str(self.__tracks[self.__current_track][0]),0)
+            self.__debug_print('    Reverse GPIO pin: '+str(self.__tracks[self.__current_track][1]),0)
             if len(self.__tracks[self.__current_track]) == 3:
-                print('    Enable GPIO pin:  '+str(self.__tracks[self.__current_track][2]))
-                print('    Enable status:    '+str(self.__on_offs[self.__current_track].value))
-        print('  Max speed:                         '+str(self.__max_speed))
-        print('  Accelleration/Decelleration steps: '+str(self.__steps))
-        print('  Accelleration/Decelleration time:  '+str(self.__ctime))
-        print('  - Speed change per step:           '+str(round(self.__speed_change,3)))
-        print('  - Delay per speed change step:     '+str(round(self.__acc_delay,3)))
-        print('  sensor pins:                       '+' '.join(str(x) for x in self.__sensor_pins))
-        print('  Debug level:                       '+str(self.__debug))
-        print('')
-        print('Current stats:')
-        print('  Available tracks:')
+                self.__debug_print('    Enable GPIO pin:  '+str(self.__tracks[self.__current_track][2]),0)
+                self.__debug_print('    Enable status:    '+str(self.__on_offs[self.__current_track].value),0)
+        self.__debug_print('  Max speed:                         '+str(self.__max_speed),0)
+        self.__debug_print('  Accelleration/Decelleration steps: '+str(self.__steps),0)
+        self.__debug_print('  Accelleration/Decelleration time:  '+str(self.__ctime),0)
+        self.__debug_print('  - Speed change per step:           '+str(round(self.__speed_change,3)),0)
+        self.__debug_print('  - Delay per speed change step:     '+str(round(self.__acc_delay,3)),0)
+        self.__debug_print('  sensor pins:                       '+' '.join(str(x) for x in self.__sensor_pins),0)
+        self.__debug_print('  Debug level:                       '+str(self.__debug),0)
+        self.__debug_print('')
+        self.__debug_print('Current stats:',0)
+        self.__debug_print('  Available tracks:',0)
         count = 0
         while count < len(self.__choo_choos):
             track = self.get_track_status(count)
-            print('    track: '+str(count))
-            print('      Forward GPIO pin: '+str(track['forward_pin']))
-            print('      Reverse GPIO pin: '+str(track['reverse_pin']))
+            self.__debug_print('    track: '+str(count),0)
+            self.__debug_print('      Forward GPIO pin: '+str(track['forward_pin']),0)
+            self.__debug_print('      Reverse GPIO pin: '+str(track['reverse_pin']),0)
             if track['enable_pin'] != None:
-                print('      Enable GPIO pin:  '+str(track['enable_pin']))
-            print('      Speed           : '+str(track['speed']))
-            print('      Direction       : '+self.__which_direction_is(track['direction']))
+                self.__debug_print('      Enable GPIO pin:  '+str(track['enable_pin']),0)
+            self.__debug_print('      Speed           : '+str(track['speed']),0)
+            self.__debug_print('      Direction       : '+self.__which_direction_is(track['direction']),0)
             count += 1
-        print('  Available sensore pins:')
+        self.__debug_print('  Available sensore pins:',0)
         count = 0
         for pin in self.__sensor_pins:
-            print('    sensor '+str(count)+' on GPIO'+str(pin))
+            self.__debug_print('    sensor '+str(count)+' on GPIO'+str(pin),0)
             count += 1
-        print('  Available points:')
+        self.__debug_print('  Available points:',0)
         count = 0
         for pin in self.__point_pins:
-            print('    Point '+str(count)+' on GPIO'+str(pin)+' (status '+str(self.__points[count].value)+')')
+            self.__debug_print('    Point '+str(count)+' on GPIO'+str(pin)+' (status '+str(self.__points[count].value)+')',0)
             count += 1
-        print('  Current speed:     '+str(round(self.speed,3)))
-        print('  Current direction: '+self.__which_direction_is(self.direction))
+        self.__debug_print('  Current speed:     '+str(round(self.speed,3)),0)
+        self.__debug_print('  Current direction: '+self.__which_direction_is(self.direction),0)
 
     def help(self):
-        print(textwrap.dedent("""\
+        self.__debug_print(textwrap.dedent("""\
             Initialize a track:
 
             t = track(name, host, port, pin_enable, pin_fwd, pin_rev, tracks, max_speed, steps, ctime, sensor_pins, point_pins debug, help)
@@ -569,5 +577,5 @@ class Track(object):
                 t.on()
             > Turn track off if an enable pin is used
                 t.off()
-        """))
+        """),0)
 
