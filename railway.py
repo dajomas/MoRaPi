@@ -45,7 +45,7 @@ class Track(object):
         try:
             self.__factory = PiGPIOFactory(host=self.__host, port=self.__port)
         except:
-            self.__debug_print('Unable to connection to '+str(self.__host)+':'+str(self.__port))
+            self.__debug_print('Unable to make a connection to '+str(self.__host)+':'+str(self.__port))
             return
 
         self.__dirlist = ['backward','stop','forward']
