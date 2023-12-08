@@ -49,7 +49,7 @@ help_text = """--script and --program command format:
 
 presets = [
     ['MotorShield Motor A',27,22,17],
-    ['MotorShield Motor B',23,24,15],
+    ['MotorShield Motor B',24,23,25],
     ['MotorShield Motor C',9,11,10],
     ['MotorShield Motor D',8,7,12],
 ]

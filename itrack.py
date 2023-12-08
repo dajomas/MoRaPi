@@ -15,7 +15,8 @@ class iTrack(Cmd):
         self.debug = debug
         self.__run = run_track()
         print('\n** Tracks:')
-        print(self.track.tracks)
+        for one_track in self.track.tracks:
+            print(one_track)
 
         print('** Sensors:')
         print(self.track.sensors)
@@ -53,9 +54,9 @@ class iTrack(Cmd):
             if l_inp[0] == 'track':
                 self.__process_command(inp, 'add_track')
             elif l_inp[0] == 'sensor':
-                self.__process_command(inp, 'set_sensor')
+                self.__process_command(inp, 'add_sensor')
             elif l_inp[0] == 'point':
-                self.__process_command(inp, 'set_point')
+                self.__process_command(inp, 'add_point')
             else:
                 print('\nInvalid command.\n')
                 self.do_show_help(inp)

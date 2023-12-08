@@ -461,7 +461,7 @@ class Track(object):
             fwd_pin = int(str(query_track[0].pin)[4:])
             rev_pin = int(str(query_track[1].pin)[4:])
             if self.__on_offs[track_nr] != None:
-                ena_pin = int(str(self.__on_offs[0].pin)[4:])
+                ena_pin = int(str(self.__on_offs[track_nr].pin)[4:])
             else:
                 ena_pin = None
             speed = round(abs(query_track.value),3)
