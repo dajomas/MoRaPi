@@ -53,9 +53,9 @@ class iTrack(Cmd):
             if l_inp[0] == 'track':
                 self.__process_command(inp, 'add_track')
             elif l_inp[0] == 'sensor':
-                self.__process_command(inp, 'set_sensor')
+                self.__process_command(inp, 'add_sensor')
             elif l_inp[0] == 'point':
-                self.__process_command(inp, 'set_point')
+                self.__process_command(inp, 'add_point')
             else:
                 print('\nInvalid command.\n')
                 self.do_show_help(inp)
