@@ -15,7 +15,8 @@ class iTrack(Cmd):
         self.debug = debug
         self.__run = run_track()
         print('\n** Tracks:')
-        print(self.track.tracks)
+        for one_track in self.track.tracks:
+            print(one_track)
 
         print('** Sensors:')
         print(self.track.sensors)
