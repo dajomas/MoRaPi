@@ -16,7 +16,7 @@ class cTrack(object):
 
         self.__track = track
         self.debug = debug
-        self.track.bind_sensors(self.__sensor_callback)
+        self.__track.bind_sensors(self.__sensor_callback)
 
         self.__do_run = (self.__track != None)
 
@@ -57,10 +57,7 @@ class cTrack(object):
     def __do_resize(self):
         y, x = self.__screen.getmaxyx()
         w = []
-        if int(y/2)*2 == y:
-            extra = 0
-        else:
-            extra = 1
+        extra = 0 if int(y/2)*2 == y else 1
         w.append({'x': int((x/3)*2)-2, 'y': int((y/2)-2+extra)})
         w.append({'x': int((x/3)*2)-2, 'y': int((y/2)-2)})
         w.append({'x': x-(int((x/3)*2)-2)-4, 'y': y-3})
@@ -108,24 +105,21 @@ class cTrack(object):
         cmd_list = [cmd_list + args]
         if self.debug > 1:
             print(cmd_list)
-        self.__run.process_commands(self.track, cmd_list, self.debug)
+        self.__run.process_commands(self.__track, cmd_list, self.debug)
 
     def __sensor_callback(self,press):
         pin = int(str(press.pin)[4:])
         self.__writelog('* Passing sensor: '+str(self.__track.sensor_id(pin=pin))+' ('+str(press.pin)+')')
 
     # Set speed
-    def __do_s(self):
+    def __do_r(self):
         self.__writelog("Setting speed")
         d = self.__wait_for_key("Direction (Forward/Stop/Reverse)").lower()
         if d in ['f','r']:
             self.__writelog(" * Direction: "+d)
             s = self.__wait_for_key("Speed (1 (10%) - 0 (100%))")
             if s in ['0','1','2','3','4','5','6','7','8','9']:
-                if s == '0':
-                    speed = 1
-                else:
-                    speed = int(s)/10
+                speed = 1 if s == '0' else int(s)/10
                 self.__writelog(" * Speed: "+str(speed*100)+"%")
                 self.__process_command('set_speed',[speed, d])
         elif d.lower() == 's':
@@ -150,21 +144,18 @@ class cTrack(object):
         display_stats = threading.Thread(target=self.__display_status)
         display_stats.start()
 
-        while do_run:
+        while self.__do_run:
             c = self.__wait_for_key("Command:").lower()
             self.__writelog("YOU HAVE PRESSED:\n * " + str(c))
             if c == 410 or c == "key_resize":
                 self.__do_resize()
-            elif c in set(string.ascii_uppercase + string.ascii_lowercase):
-                if c in ['x']:
-                    do_run = False
+            elif c in set(string.ascii_lowercase + string.digits):
+                if c in ['x','q']:
+                    self.__do_run = False
                 elif c in ['0','1','2','3','4','5','6','7','8','9']:
-                    if c == '0':
-                        speed = 1
-                    else:
-                        speed = int(c)/10
+                    speed = 1 if c == '0' else int(c)/10
                     self.__writelog("Set speed: "+str(speed*100)+"%")
-                    self.__process_command('set_speed',[speed, self.__track.direction])
+                    self.__process_command('set_speed',[speed, 1 if self.__track.direction == 0 else self.__track.direction])
                 elif c == "d":
                     self.__writelog("Toggle direction")
                     self.__process_command('set_speed',[speed, self.__track.direction*-1])

@@ -5,6 +5,7 @@ import yaml
 
 from run import run_track
 from itrack import iTrack
+from ctrack import cTrack
 from railway import Track
 from defaults import *
 
@@ -30,7 +31,7 @@ def process_args(dargs):
     parser.add_argument('-v','--v','--verbose', dest='debug', action='count', default=dargs['debug'], help="increase verbosity, more v's is more output (default: 0)")
     parser.add_argument('--name', dest='name', type=str, action='store', default=dargs['name'], help='Name of the track (default: track)')
 
-    parser.add_argument('-f','--f','--function', choices=['set_speed','run_for','run_until','demo','program','script','interactive'], type=str, dest='function', default=dargs['function'], help='Function to run (default: '+str(dargs['function'])+')')
+    parser.add_argument('-f','--f','--function', choices=['set_speed','run_for','run_until','demo','program','script','interactive','curses'], type=str, dest='function', default=dargs['function'], help='Function to run (default: '+str(dargs['function'])+')')
 
     parser.add_argument('--host', dest='host', type=str, action='store', default=dargs['host'], help='Name of the host that runs pigpiod (default: '+str(dargs['host'])+')')
     parser.add_argument('--port', dest='port', type=int, action='store', default=dargs['port'], help='Port on which pigpio is listening (default: '+str(dargs['port'])+')')
@@ -145,6 +146,8 @@ def main():
         run.process_commands(t, cmd_list, DEBUG)
     elif args.function == 'interactive':
         iTrack(track=t, debug=DEBUG).cmdloop()
+    elif args.function == 'curses':
+        cTrack(track=t, debug=DEBUG).main_loop()
 
     # demo0()
 
