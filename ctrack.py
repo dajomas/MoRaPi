@@ -92,6 +92,14 @@ class cTrack(object):
 
     def __display_status(self):
         while self.__do_run:
+            lcnt = 1
+            for one_track in self.__track.tracks:
+                
+            # retval['forward_pin'] = fwd_pin
+            # retval['reverse_pin'] = rev_pin
+            # retval['enable_pin'] = ena_pin
+            # retval['speed'] = speed
+            # retval['direction'] = direction
             sleep(1)
 
     def __wait_for_key(self, text):
