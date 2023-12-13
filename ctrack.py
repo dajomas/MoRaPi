@@ -22,6 +22,7 @@ class cTrack(object):
         self.__do_run = (self.__track != None)
 
         self.__run = run_track()
+        self.__run.bind_debug(self.__writelog)
 
         self.__prefix = "_cTrack"
         self.__screen.keypad( 1 )
@@ -84,7 +85,7 @@ class cTrack(object):
 
     def __writelog(self, inmessage):
         y,x = self.__outp_win.getmaxyx()
-        msg = inmessage.splitlines()
+        msg = str(inmessage).splitlines()
         for message in msg:
             if len(self.__msgs) > y-5:
                 z = self.__msgs.pop(0)
@@ -197,6 +198,9 @@ class cTrack(object):
                 elif c == "s":
                     self.__writelog("Stop")
                     self.__process_command('stop',[])
+                elif c == "e":
+                    self.__writelog("Emergency Stop")
+                    self.__process_command('force_stop',[])
                 elif c == "i":
                     self.__track.show_settings()
                 elif c == "t":
