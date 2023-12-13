@@ -177,6 +177,8 @@ class cTrack(object):
                 elif c == "s":
                     self.__writelog("Stop")
                     self.__process_command('stop',[])
+                elif c == "i":
+                    self.__track.show_settings()
                 elif c == "t":
                     self.__do_switch(["Switch track", "Select track", " * set track: ", "No other tracks to switch to."], 1, self.__track.tracks, 'set_track')
                 elif c == "p":
