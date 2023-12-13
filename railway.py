@@ -460,21 +460,18 @@ class Track(object):
             query_track = self.__choo_choos[track_nr]
             fwd_pin = int(str(query_track[0].pin)[4:])
             rev_pin = int(str(query_track[1].pin)[4:])
-            if self.__on_offs[track_nr] != None:
-                ena_pin = int(str(self.__on_offs[track_nr].pin)[4:])
-            else:
-                ena_pin = None
-            speed = round(abs(query_track.value),3)
-            if speed > 0:
-                direction = int(query_track.value/speed)
-            else:
-                direction = 0
+            ena_pin = int(str(self.__on_offs[track_nr].pin)[4:]) if self.__on_offs[track_nr] != None else None
+            track_value = round(query_track.value,3)
+            speed = round(abs(track_value),3)
+            direction = int(track_value/speed) if speed > 0 else 0
             retval = {}
+            retval['value'] = track_value
             retval['forward_pin'] = fwd_pin
             retval['reverse_pin'] = rev_pin
             retval['enable_pin'] = ena_pin
             retval['speed'] = speed
             retval['direction'] = direction
+            retval['direction_str'] = self.__dirlist[direction+1]
 
             return retval
 
