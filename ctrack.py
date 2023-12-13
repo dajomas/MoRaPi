@@ -97,11 +97,11 @@ class cTrack(object):
             self.__stat_win.addstr(2,2,"-------------------------  ---------------------")
             lcnt = 0
             for one_track in self.__track.tracks:
-                speed_graph="*"*int(one_track['speed']*10)
+                speed_graph="*"*(int(one_track['speed']*10)-1)
                 if one_track['direction'] == -1:
-                    speed_graph = speed_graph.rjust(10)+"|"+str(" "*10)
+                    speed_graph = str("<"+speed_graph).rjust(10)+"|"+str(" "*10)
                 elif one_track['direction'] == 1:
-                    speed_graph = str(" "*10)+"|"+speed_graph.ljust(10)
+                    speed_graph = str(" "*10)+"|"+str(speed_graph+">").ljust(10)
                 else:
                     speed_graph = str(" "*10)+"|"+str(" "*10)
                 self.__stat_win.addstr(lcnt+3,2, str(lcnt).rjust(3).ljust(5)+str(str(one_track['speed']*100)+"%").rjust(8).ljust(10)+one_track['direction_str'].ljust(10)+"  "+speed_graph)
