@@ -6,6 +6,21 @@ errValueError = -1001
 errIndexError = -1002
 
 class run_track(object):
+
+    def __init__(self):
+        self.__debug_observers = []
+
+    def __debug_print(self, message, dbg_level=0):
+        if self.__debug >= dbg_level:
+            if len(self.__debug_observers) == 0:
+                print(message)
+            else:
+                for callback in self.__debug_observers:
+                    callback(message)
+
+    def bind_debug(self, callback):
+        self.__debug_observers.append(callback)
+
     def check_option(self, options, optnr, dofloat=False, doBool=False, doDir=False):
         retval = errNoValue
         oldval = errNoValue
@@ -39,9 +54,8 @@ class run_track(object):
     def check_value(self, cmd_list, cmd_line, value, type):
         __type = str(type).upper()
         Err = ''
-        if self.__debug > 1:
-            print('Checking value for cmd_line ('+str(cmd_line)+') ('+type+'): ')
-            print(value)
+        self.__debug_print('Checking value for cmd_line ('+str(cmd_line)+') ('+type+'): ',2)
+        self.__debug_print(value,2)
         if value[0] in [errIndexError,errNoValue]:
             if __type != 'ENABLE':
                 Err = ': value for '+__type+': is missing'
@@ -68,9 +82,8 @@ class run_track(object):
             cmd_line += 1
             if len(cmd) == 0:
                 continue
-            if self.__debug > 1:
-                print('Processing command:')
-                print(cmd)
+            self.__debug_print('Processing command:',2)
+            self.__debug_print(cmd,2)
             if cmd[0] in cmd_list['CMDS']:
                 cmd_list['ERRORS'].append(str(cmd_line)+': Order '+str(cmd[0])+' already exists.')
             else:
@@ -115,8 +128,8 @@ class run_track(object):
                 elif cmd[1] == 'add_track':
                     __fwd = self.check_option(cmd,2)
                     __rev = self.check_option(cmd,3)
-                    __ena = self.check_option(cmd,2)
-                elif cmd[1] not in ['stop']:
+                    __ena = self.check_option(cmd,4)
+                elif cmd[1] not in ['stop','force_stop']:
                     cmd_list['ERRORS'].append(str(cmd_line)+': Unknwon command '+str(cmd[1])+'.')
 
                 cmd_list['ERRORS'] = self.check_value(cmd_list['ERRORS'],cmd_line,__track,'TRACK')
@@ -135,8 +148,7 @@ class run_track(object):
     def run_program(self, t, cmd_line_options):
         cmd_line = 0
         for cmd in sorted(cmd_line_options, key=lambda x:x[0]):
-            if self.__debug > 0:
-                print('Executing command: '+' '.join(str(x) for x in cmd))
+            self.__debug_print('Executing command: '+' '.join(str(x) for x in cmd),1)
             cmd_line += 1
             if cmd[1] == 'set_track':
                 __track = self.check_option(cmd,2,False)[0]
@@ -172,6 +184,8 @@ class run_track(object):
                 t.add_point(__sensor)
             elif cmd[1] == 'stop':
                 t.stop()
+            elif cmd[1] == 'force_stop':
+                t.stop(t.force_stop)
             elif cmd[1] == 'point_state_0':
                 __point = self.check_option(cmd,2)[0]
                 t.point_state_0(__point)
@@ -187,9 +201,9 @@ class run_track(object):
         self.__debug = debug
         error_list = self.verify_program(cmd_options)
         if len(error_list) > 0:
-            print('Errors found in commands:')
+            self.__debug_print('Errors found in commands:',0)
             for Err in error_list:
-                print(Err)
+                self.__debug_print(Err,0)
             return False
         else:
             return self.run_program(t, cmd_options)
