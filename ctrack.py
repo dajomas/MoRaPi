@@ -17,6 +17,7 @@ class cTrack(object):
         self.__track = track
         self.debug = debug
         self.__track.bind_sensors(self.__sensor_callback)
+        self.__track.bind_debug(self.__writelog)
 
         self.__do_run = (self.__track != None)
 
@@ -92,14 +93,20 @@ class cTrack(object):
 
     def __display_status(self):
         while self.__do_run:
-            lcnt = 1
+            self.__stat_win.addstr(1,2,"Track   Speed  Direction   Reverse   S   Forward")
+            self.__stat_win.addstr(2,2,"-------------------------  ---------------------")
+            lcnt = 0
             for one_track in self.__track.tracks:
-                
-            # retval['forward_pin'] = fwd_pin
-            # retval['reverse_pin'] = rev_pin
-            # retval['enable_pin'] = ena_pin
-            # retval['speed'] = speed
-            # retval['direction'] = direction
+                speed_graph="*"*int(one_track['speed']*10)
+                if one_track['direction'] == -1:
+                    speed_graph = speed_graph.rjust(10)+"|"+str(" "*10)
+                elif one_track['direction'] == 1:
+                    speed_graph = str(" "*10)+"|"+speed_graph.ljust(10)
+                else:
+                    speed_graph = str(" "*10)+"|"+str(" "*10)
+                self.__stat_win.addstr(lcnt+3,2, str(lcnt).rjust(3).ljust(5)+str(str(one_track['speed']*100)+"%").rjust(8).ljust(10)+one_track['direction_str'].ljust(10)+"  "+speed_graph)
+                lcnt += 1
+            self.__paint_wins()
             sleep(1)
 
     def __wait_for_key(self, text):
