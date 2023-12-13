@@ -151,8 +151,8 @@ class cTrack(object):
                 s_lst.append(str(s_num))
             s = self.__wait_for_key(msgs[1]+" ("+"/".join(s_lst)+")").lower()
             if s in s_lst:
-                self.__writelog(msgs[2]+t)
-                self.__process_command(cmd,[t])
+                self.__writelog(msgs[2]+s)
+                self.__process_command(cmd,[s])
         else:
             self.__writelog(msgs[3])
 
