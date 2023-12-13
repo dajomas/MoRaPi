@@ -86,12 +86,12 @@ class Track(object):
 
     @property
     def speed(self) -> int:
-        return abs(self.__choo_choo.value)
+        return round(abs(self.__choo_choo.value),3)
 
     @property
     def direction(self) -> int:
         if self.speed > 0:
-            return int(self.__choo_choo.value/self.speed)
+            return int(round(self.__choo_choo.value,3)/self.speed)
         else:
             return 0
 
