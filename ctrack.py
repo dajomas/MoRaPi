@@ -27,6 +27,12 @@ class cTrack(object):
         self.__screen.keypad( 1 )
         self.__screen.refresh()
 
+        curses.start_color()
+        curses.use_default_colors()
+        curses.init_pair(1,1,-1)
+        curses.init_pair(2,3,-1)
+        curses.init_pair(3,2,-1)
+
         self.__stat_win = self.__mk_win(1,1,1,1)
         self.__cmds_win = self.__mk_win(1,1,1,1)
         self.__outp_win = self.__mk_win(1,1,1,1)
@@ -93,8 +99,8 @@ class cTrack(object):
 
     def __display_status(self):
         while self.__do_run:
-            self.__stat_win.addstr(1,2,"Track   Speed  Direction   Reverse   S   Forward")
-            self.__stat_win.addstr(2,2,"-------------------------  ---------------------")
+            self.__stat_win.addstr(2,2,"Track  Speed  Direction    Reverse   S   Forward")
+            self.__stat_win.addstr(3,2,"-----  -----  -----------  ---------------------")
             lcnt = 0
             for one_track in self.__track.tracks:
                 speed_graph="*"*(int(one_track['speed']*10)-1)
@@ -104,7 +110,10 @@ class cTrack(object):
                     speed_graph = str(" "*10)+"|"+str(speed_graph+">").ljust(10)
                 else:
                     speed_graph = str(" "*10)+"|"+str(" "*10)
-                self.__stat_win.addstr(lcnt+3,2, str(lcnt).rjust(3).ljust(5)+str(str(one_track['speed']*100)+"%").rjust(8).ljust(10)+one_track['direction_str'].ljust(10)+"  "+speed_graph)
+                self.__stat_win.addstr(lcnt+4,2, str(lcnt).rjust(3).ljust(4)+str(str(one_track['speed']*100)+"%").rjust(8).ljust(10)+one_track['direction_str'].ljust(10)+"  ")
+                self.__stat_win.addstr(lcnt+4,29,speed_graph[:10],curses.color_pair(1))
+                self.__stat_win.addstr(lcnt+4,39,speed_graph[10],curses.color_pair(2))
+                self.__stat_win.addstr(lcnt+4,40,speed_graph[11:],curses.color_pair(3))
                 lcnt += 1
             self.__paint_wins()
             sleep(1)
