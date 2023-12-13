@@ -113,6 +113,7 @@ class cTrack(object):
         y,x = self.__cmds_win.getmaxyx()
         self.__cmds_win.addstr(y-2,1, text)
         self.__cmds_win.clrtoeol()
+        self.__paint_wins()
         return self.__cmds_win.getkey(y-2,len(text)+2)
 
     def __process_command(self, cmd, args):
@@ -160,6 +161,16 @@ class cTrack(object):
         display_stats.start()
 
         while self.__do_run:
+            self.__cmds_win.addstr(2,2, "1-9,0: set speed for current track 1=10%, 0=100%")
+            self.__cmds_win.addstr(3,2, "r:     set direction and speed for current track")
+            self.__cmds_win.addstr(4,2, "d:     toggle direction for current track")
+            self.__cmds_win.addstr(5,2, "s:     stop current track")
+            self.__cmds_win.addstr(6,2, "t:     switch track")
+            self.__cmds_win.addstr(7,2, "p:     toggle point")
+            self.__cmds_win.addstr(8,2, "i:     display status info")
+            self.__cmds_win.addstr(9,2, "x/q:   Exit")
+            self.__paint_wins()
+
             c = self.__wait_for_key("Command:").lower()
             self.__writelog("YOU HAVE PRESSED:\n * " + str(c))
             if c == 410 or c == "key_resize":
