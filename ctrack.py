@@ -120,7 +120,7 @@ class cTrack(object):
             self.__stat_win.addstr(3,2,"-----  -----  -----------  ---------------------")
             lcnt = 0
             for one_track in self.__track.tracks:
-                speed_graph="*"*(int(one_track['speed']*10)-1)
+                speed_graph="="*(int(one_track['speed']*10)-1)
                 isactive = "*" if lcnt == self.__track.active_track else " "
                 if one_track['direction'] == -1:
                     speed_graph = str("<"+speed_graph).rjust(10)+"|"+str(" "*10)
@@ -217,10 +217,7 @@ class cTrack(object):
         else:
             self.__writelog(msgs[3])
 
-    def main_loop(self):
-        display_stats = threading.Thread(target=self.__display_status)
-        display_stats.start()
-
+    def run_loop(self):
         while self.__do_run:
             linenr = 1
             for linetxt in self.__cmd_help:
@@ -228,11 +225,12 @@ class cTrack(object):
             self.__paint_wins()
 
             c = self.__wait_for_key("Command:").lower()
-            self.__writelog("YOU HAVE PRESSED:\n * " + str(c))
+            # self.__writelog("YOU HAVE PRESSED:\n * " + str(c) + " " + str(ord(c)))
             if c == 410 or c == "key_resize":
                 self.__do_resize()
-            elif c in set(string.ascii_lowercase + string.digits):
-                if c in ['x','q'] or ord(c) == 27:
+            elif c in set(string.ascii_lowercase + string.digits + chr(27)):
+                if c in ['x','q', '^['] or ord(c) == 27:
+                    self.__writelog("Bye, bye, Choo-choo!")
                     self.__do_run = False
                 elif c in ['0','1','2','3','4','5','6','7','8','9']:
                     speed = 1 if c == '0' else int(c)/10
@@ -265,8 +263,16 @@ class cTrack(object):
 
             self.__paint_wins()
 
-        display_stats.join()
-        curses.endwin()
+    def main_loop(self):
+        display_stats = threading.Thread(target=self.__display_status)
+        display_stats.start()
+
+        try:
+            self.run_loop()
+        finally:
+            self.__do_run == False
+            display_stats.join()
+            curses.endwin()
 
 if __name__ == '__main__':
     x = cTrack()
