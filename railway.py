@@ -100,6 +100,10 @@ class Track(object):
         return self.__which_direction_is(self.direction)
 
     @property
+    def active_track(self) -> int:
+        return self.__current_track
+
+    @property
     def tracks(self) -> list:
         count = 0
         tracks = []
