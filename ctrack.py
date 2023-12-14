@@ -258,7 +258,7 @@ class cTrack(object):
                     cmd = getattr(self,cmd_str, None)
                     if cmd != None:
                         if callable(cmd):
-                            self.__writelog("Calling function: "+cmd_str)
+                            self.__writelog("Calling function: "+cmd_str[9:])
                             cmd()
                     else:
                         self.__writelog("Unknown command: "+c)
