@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+from tendo import singleton
+
 import argparse
 import textwrap
 import yaml
@@ -153,4 +155,8 @@ def main():
 
 #Run the main function when this program is run
 if __name__ == '__main__':
-    main()
+    try:
+        me = singleton.SingleInstance()
+        main()
+    except:
+        pass
