@@ -1,6 +1,9 @@
 import curses
 import string
 import threading
+
+import os
+        
 from time import time,sleep
 from datetime import timedelta
 
@@ -47,13 +50,23 @@ class cTrack(object):
         self.__cmd_help = [
             "1-9,0: set speed (speed up) for current track 1=10%, 0=100%",
             "r:     set di,ection and speed for current track",
-            "d:     toggle direction for current track (slow down/speed u,)",
+            "d:     toggle direction for current track (slow down/speed up)",
             "s:     stop (slow down) current track",
             "e:     emergency stop current track",
             "t:     switch active track",
             "p:     toggle point",
+            "m:     programming mode",
             "i:     display status info",
             "x/q:   Exit"
+        ]
+
+        self.__prg_help = [
+            "l:   load program script",
+            "s:   save program script",
+            "r:   run program script",
+            "t:   list program script",
+            "e:   edit program script",
+            "x/q: Exit programming mode"
         ]
 
         self.__do_resize()
@@ -85,7 +98,8 @@ class cTrack(object):
         w.append({'x': 70, 'y': int(y-len(self.__cmd_help)-7-2+extra)})
         w.append({'x': 70, 'y': int(len(self.__cmd_help)+6)})
         w.append({'x': x-70-2-4, 'y': y-2})
-        self.__screen.clear
+        
+        self.__screen.clear()
         self.__screen.refresh()
 
         self.__stat_win.mvwin(1,1)
@@ -202,7 +216,57 @@ class cTrack(object):
         elif d.lower() == 's':
             self.__writelog(" * Stopping")
             self.__process_command('stop',[])
+    
+    def __disp_help(self, helplist):
+        linenr = 1
+        self.__cmds_win.clear()
+        for linetxt in helplist:
+            self.__cmds_win.addstr((linenr:=linenr+1),2, linetxt)
+        self.__paint_wins()
 
+    # load script
+    def __do_prog_l(self):
+        pass
+        
+    # save script
+    def __do_prog_s(self):
+        pass
+    
+    # list script
+    def __do_prog_t(self):
+        pass
+
+    # edit script
+    def __do_prog_e(self):
+        pass
+    
+    # run script
+    def __do_prog_r(self):
+        pass
+    
+    # Programming mode
+    def __do_m(self):
+        self.__do_program = True
+        self.__program = []
+        while self.__do_program:
+            self.__disp_help(self.__prg_help)
+
+            c = self.__wait_for_key("Programming:").lower()
+            if c == 410 or c == "key_resize":
+                self.__do_resize()
+            elif c in set(string.ascii_lowercase + string.digits + chr(27)):
+                if c in ['x','q', '^['] or ord(c) == 27:
+                    self.__do_program = False
+                else:
+                    cmd_str = self.__prefix+'__do_prog_'+c
+                    cmd = getattr(self,cmd_str, None)
+                    if cmd != None:
+                        if callable(cmd):
+                            self.__writelog("Calling function: "+cmd_str[9:])
+                            cmd()
+                    else:
+                        self.__writelog("Unknown command: "+c)
+            
     def __do_switch(self,msgs=[], min_cnt=0, prop=None, cmd=""):
         self.__writelog(msgs[0])
         s_cnt = len(prop)
@@ -219,10 +283,7 @@ class cTrack(object):
 
     def run_loop(self):
         while self.__do_run:
-            linenr = 1
-            for linetxt in self.__cmd_help:
-                self.__cmds_win.addstr((linenr:=linenr+1),2, linetxt)
-            self.__paint_wins()
+            self.__disp_help(self.__cmd_help)
 
             c = self.__wait_for_key("Command:").lower()
             # self.__writelog("YOU HAVE PRESSED:\n * " + str(c) + " " + str(ord(c)))
