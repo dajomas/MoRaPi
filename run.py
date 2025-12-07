@@ -1,4 +1,6 @@
 from defaults import *
+import datetime
+from time import localtime, strftime
 
 okIgnore = -999
 errNoValue = -1000
@@ -11,12 +13,13 @@ class run_track(object):
         self.__debug_observers = []
 
     def __debug_print(self, message, dbg_level=0):
+        now = strftime("%Y-%m-%d %H:%M:%S", localtime())
         if self.__debug >= dbg_level:
             if len(self.__debug_observers) == 0:
-                print(message)
+                print(now+" => "+message)
             else:
                 for callback in self.__debug_observers:
-                    callback(message)
+                    callback(now+" => "+message)
 
     def bind_debug(self, callback):
         self.__debug_observers.append(callback)
