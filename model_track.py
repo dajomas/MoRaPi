@@ -48,8 +48,8 @@ def process_args(dargs):
     parser.add_argument('--enable', dest='pin_enable', type=int, action='store', default=dargs['pin_enable'], help='GPIO number of the enable pin (default: '+str(dargs['pin_enable'])+') (ignored if --track or --preset is used)')
     parser.add_argument('--track', nargs='*', type=int, action='append', dest='tracks', default=dargs['tracks'], help='Define track as <fwd-pin> <rev-pin> [<enable-pin>]')
     parser.add_argument('-s','--s','--sensor', dest='sensor_pins', type=int, action='append', default=dargs['sensor_pins'], help='GPIO number of a sensor, can be specified multiple times, for run_until uses the first sensor, so at least one is required (default: '+str(dargs['sensor_pins'])+')')
-    parser.add_argument('-p','--p','--point', dest='point_pins', type=int, action='append', default=dargs['point_pins'], help='GPIO number of a point, can be specified multiple times (default: '+str(dargs['point_pins'])+')')
-
+    parser.add_argument('-p','--p','--point', '--switch', dest='point_pins', type=int, action='append', default=dargs['point_pins'], help='GPIO number of a point, can be specified multiple times (default: '+str(dargs['point_pins'])+')')
+    parser.add_argument('--servo', nargs=2, type=float, action='append', dest='servos', default=dargs['servos'], help='GPIO number of a servo and the degrees to turn, can be specified multiple times (default: '+str(dargs['servos'])+')')
     parser.add_argument('--speed', dest='speed', type=float, action='store', default=dargs['speed'], help='for set_speed, run_for and run_until (default: '+str(dargs['speed'])+')')
     parser.add_argument('--direction', dest='direction', type=str, choices=valid_direction, action='store', default=dargs['direction'], help='-1 is backwards, 1 is forward, for set_speed, run_for and run_until (default: '+str(dargs['direction'])+')')
     parser.add_argument('--duration', dest='duration', type=int, action='store', default=dargs['duration'], help='duration in seconds, for run_for only (default: '+str(dargs['duration'])+')')
@@ -102,7 +102,7 @@ def main():
                pin_enable=args.pin_enable, pin_fwd=args.pin_fwd, pin_rev=args.pin_rev,
                tracks=args.tracks,
                steps=args.steps, ctime=args.ctime,
-               sensor_pins=args.sensor_pins, point_pins=args.point_pins,
+               sensor_pins=args.sensor_pins, point_pins=args.point_pins, servos= args.servos,
                debug=args.debug)
 
     if not t.is_ok():
@@ -147,8 +147,10 @@ def main():
         run = run_track()
         run.process_commands(t, cmd_list, DEBUG)
     elif args.function == 'interactive':
+        print('Interactive mode...')
         iTrack(track=t, debug=DEBUG).cmdloop()
     elif args.function == 'curses':
+        print('Curses dashboard...')
         cTrack(track=t, debug=DEBUG).main_loop()
 
     # demo0()

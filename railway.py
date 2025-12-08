@@ -1,4 +1,4 @@
-from gpiozero import Motor, Button, OutputDevice
+from gpiozero import Motor, Button, OutputDevice, Servo
 from gpiozero.pins.pigpio import PiGPIOFactory
 from time import sleep
 import textwrap
@@ -10,9 +10,10 @@ class Track(object):
 
     def __init__(self, name='track',
                  host='localhost', port=8888,
+                 pin_factories=None,
                  pin_enable=None, pin_fwd=17, pin_rev=18, tracks=[],
                  max_speed=1.0, steps=10, ctime=5,
-                 sensor_pins=[], point_pins=[],
+                 sensor_pins=[], point_pins=[], servos=[],
                  debug=0, help=False):
 
         self.__reset()
@@ -31,6 +32,7 @@ class Track(object):
         self.__host = host
         self.__port = port
         self.__set_current_track(None)
+        self.__pin_factories = pin_factories
 
         self.__pin_enable = pin_enable
         self.__pin_fwd = pin_fwd
@@ -41,13 +43,15 @@ class Track(object):
         self.__ctime = ctime
         self.__sensor_pins = sensor_pins
         self.__point_pins = point_pins
+        self.__servos_conf = servos
         self.__debug = debug
 
-        try:
-            self.__factory = PiGPIOFactory(host=self.__host, port=self.__port)
-        except:
-            self.__debug_print('Unable to make a connection to '+str(self.__host)+':'+str(self.__port))
-            return
+        if self.__pin_factories == None:
+            self.__pin_factories = {'default': {'host': self.__host, 'port': self.__port}}
+        elif 'default' not in self.__pin_factories.keys():
+            self.__pin_factories['default'] = {'host': self.__host, 'port': self.__port}
+
+        self.__init_pin_factories()
 
         self.__dirlist = ['backward','stop','forward']
         self.__speed_change = round(self.__max_speed / self.__steps,3)
@@ -55,9 +59,9 @@ class Track(object):
 
         if len(self.__tracks) == 0:
             if self.__pin_enable == None:
-                self.__tracks = [[self.__pin_fwd, self.__pin_rev]]
+                self.__tracks = [[self.__pin_fwd, self.__pin_rev, 'default']]
             else:
-                self.__tracks = [[self.__pin_fwd, self.__pin_rev, self.__pin_enable]]
+                self.__tracks = [[self.__pin_fwd, self.__pin_rev, self.__pin_enable, 'default']]
 
         if not self.__verify_pins():
             self.__reset()
@@ -66,12 +70,17 @@ class Track(object):
         if len(self.__tracks) > 0:
             if not self.__init_tracks():
                 self.__reset()
+                self.__debug_print('Unable to initialize track(s)',0)
                 return
         else:
+            self.__debug_print('No tracks defined',0)
             self.__reset()
             return
+        print(self.__choo_choos)
+
         self.__init_sensors()
         self.__init_points()
+        self.__init_servos()
 
         # public attributes
         self.go_forward = 1
@@ -142,59 +151,117 @@ class Track(object):
         pins = {}
         ret = True
         for track in self.__tracks:
-            for pin in track:
+            one_track = self.__check_track(track)
+            for element in ['fwd','rev','enable']:
+                if element in one_track.keys():
+                    pin = one_track[element]
+                    if str(pin) in pins.keys():
+                        self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
+                        ret = False
+                    else:
+                        pins[str(pin)] = pin
+        for sensor in self.__sensor_pins:
+            one_sensor = self.__check_simple_pin(sensor)
+            if one_sensor != None and 'pin' in one_sensor.keys():
+                pin = one_sensor['pin']
                 if str(pin) in pins.keys():
                     self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
                     ret = False
                 else:
                     pins[str(pin)] = pin
-        for pin in  self.__sensor_pins:
-            if str(pin) in pins.keys():
-                self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
-                ret = False
-            else:
-                pins[str(pin)] = pin
-        for pin in  self.__point_pins:
-            if str(pin) in pins.keys():
-                self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
-                ret = False
-            else:
-                pins[str(pin)] = pin
+        for point in  self.__point_pins:
+            one_point = self.__check_simple_pin(point)
+            if one_point != None and 'pin' in one_point.keys():
+                pin = one_point['pin']
+                if str(pin) in pins.keys():
+                    self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
+                    ret = False
+                else:
+                    pins[str(pin)] = pin
+        for servo in  self.__servos_conf:
+            one_servo = self.__check_servo(servo)
+            if one_servo != None and 'pin' in one_servo.keys():
+                pin = one_servo['pin']
+                if str(pin) in pins.keys():
+                    self.__debug_print('! Duplicate pins found: GPIO'+str(pin),0)
+                    ret = False
+                else:
+                    pins[str(pin)] = pin
         return ret
 
+    def __init_pin_factories(self):
+        for pf in self.__pin_factories.keys():
+            try:
+                pf_item = self.__pin_factories[pf]
+                self.__pin_factories[pf]['pin_factory'] = PiGPIOFactory(host=pf_item['host'], port=pf_item['port'])
+            except:
+                self.__debug_print('Unable to make a connection to '+str(pf_item['host'])+':'+str(pf_item['port']))
+                self.__pin_factories[pf]['pin_factory'] = None
+                return
+
     def __init_track(self,track,count):
-        self.__debug_print('* Initializeing enginge '+str(count)+' on pins GPIO'+str(track[0])+' and GPIO'+str(track[1]),0)
-        self.__choo_choos.append(Motor(track[0],track[1],pin_factory=self.__factory, pwm=True))
-        if len(track) == 3:
-            self.__debug_print('* Initializeing enginge '+str(count)+' enable pin GPIO'+str(track[2]),0)
-            self.__on_offs.append(OutputDevice(track[2],pin_factory=self.__factory))
+        self.__debug_print('* Initializing track '+str(count)+' on pins GPIO'+str(track['fwd'])+' and GPIO'+str(track['rev']),0)
+        pin_factory = self.__pin_factories[track['pin_factory']]['pin_factory']
+        self.__choo_choos.append(Motor(track['fwd'],track['rev'],pin_factory=pin_factory, pwm=True))
+        if 'enable' in track.keys():
+            self.__debug_print('* Initializing track '+str(count)+' enable pin GPIO'+str(track['enable']),0)
+            self.__on_offs.append(OutputDevice(track['enable'],pin_factory=pin_factory))
         else:
             self.__on_offs.append(None)
+
+    def __check_track(self,track):
+        verified_track = {'fwd': track[0], 'rev': track[1]}
+        if len(track)>2:
+            if type(track[2]) == int:
+                verified_track['enable'] = track[2]
+                if len(track)==4:
+                    verified_track['pin_factory'] = track[3]
+                else:
+                    verified_track['pin_factory'] = 'default'
+            elif type(track[2]) == str:
+                verified_track['pin_factory'] = track[2]
+            else:
+                verified_track['pin_factory'] = 'default'
+        return verified_track
 
     def __init_tracks(self):
         count = 0
         for track in self.__tracks:
-            self.__init_track(track,count)
+            self.__init_track(self.__check_track(track),count)
             count += 1
         return self.set_track(0)
 
     def __init_sensor(self,sensor_pin,count):
-        self.__debug_print('* Initializeing sensor '+str(count)+' on pin GPIO'+str(sensor_pin),0)
-        self.__sensors_gpio['GPIO'+str(sensor_pin)] = count
-        self.__sensors.append(Button(sensor_pin,pin_factory=self.__factory))
-        self.__sensors[count].when_released = self.__sensor_callback
+        if sensor_pin['pin'] != None:
+            self.__debug_print('* Initializing sensor '+str(count)+' on pin GPIO'+str(sensor_pin['pin']),0)
+            self.__sensors_gpio['GPIO'+str(sensor_pin['pin'])] = count
+            self.__sensors.append(Button(sensor_pin['pin'],pin_factory=self.__pin_factories[sensor_pin['pin_factory']]['pin_factory']))
+            self.__sensors[count].when_released = self.__sensor_callback
 
+    def __check_simple_pin(self,simple_pin):
+        verified_pin = {}
+        if type(simple_pin) == int:
+            verified_pin = {'pin': simple_pin, 'pin_factory': 'default'}
+        elif type(simple_pin) == list:
+            verified_pin['pin'] = simple_pin[0]
+            if len(simple_pin)> 1:
+                verified_pin['pin_factory'] = simple_pin[1]
+        elif type(simple_pin) == dict:
+            verified_pin['pin'] = None if 'pin' not in simple_pin.keys() else simple_pin['pin']
+            verified_pin['pin_factory'] = 'default' if 'pin_factory' not in simple_pin.keys() else simple_pin['pin_factory']
+        return verified_pin
+    
     def __init_sensors(self):
         self.__max_sensors = len(self.__sensor_pins)
         count = 0
         for sensor_pin in self.__sensor_pins:
-            self.__init_sensor(sensor_pin,count)
+            self.__init_sensor(self.__check_simple_pin(sensor_pin),count)
             count += 1
 
     def __init_point(self,point_pin,count):
-        self.__debug_print('* Initializeing point '+str(count)+' on pin GPIO'+str(point_pin),0)
-        self.__points_gpio['GPIO'+str(point_pin)] = count
-        self.__points.append(OutputDevice(point_pin,pin_factory=self.__factory))
+        self.__debug_print('* Initializing point '+str(count)+' on pin GPIO'+str(point_pin['pin']),0)
+        self.__points_gpio['GPIO'+str(point_pin['pin'])] = count
+        self.__points.append([OutputDevice(point_pin['pin'],pin_factory=point_pin['pin_factory'])])
         self.__points[count].active_high = False
         self.__points[count].off()
 
@@ -202,7 +269,33 @@ class Track(object):
         self.__max_points = len(self.__point_pins)
         count = 0
         for point_pin in self.__point_pins:
-            self.__init_point(point_pin,count)
+            self.__init_point(self.__check_simple_pin(point_pin),count)
+            count += 1
+
+    def __init_servo(self,servo_conf,count):
+        if servo_conf != None:
+            self.__debug_print('* Initializing servo '+str(count)+' on pin GPIO'+str(servo_conf['pin']),0)
+            self.__points_gpio['GPIO'+str(servo_conf['pin'])] = count
+            self.__points.append([Servo(pin=servo_conf['pin'],pin_factory=servo_conf['pin_factory']),servo_conf['straight'],servo_conf['turn']])
+
+    def __check_servo(self,servo_conf):
+        verified_servo = {}
+        servo_elements = ['pin','straight','turn','pin_factory']
+        if type(servo_conf) != dict:
+            verified_servo = None
+        else:
+            if servo_elements in list(servo_conf.keys()):
+                for element in servo_elements:
+                    verified_servo[element] = servo_conf[element]
+            else:
+                verified_servo = None
+        return verified_servo
+    
+    def __init_servos(self):
+        self.__max_servos = len(self.__servos_conf)
+        count = len(self.__points)
+        for servo_conf in self.__servos_conf:
+            self.__init_servo(self.__check_servo(servo_conf),count)
             count += 1
 
     def __sensor_callback(self,press):

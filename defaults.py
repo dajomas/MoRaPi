@@ -72,6 +72,7 @@ default_args = {
     'tracks': [],
     'sensor_pins': [],
     'point_pins': [],
+    'servos': [],
     'speed': 1,
     'direction': 1,
     'duration': 10,
