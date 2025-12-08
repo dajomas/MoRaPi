@@ -175,9 +175,13 @@ if __name__ == '__main__':
         # Parse args once here to know which mode we are in.
         from sys import argv
 
+        print(argv)
         # Very small parse to detect '--function web' without duplicating full argparse:
-        run_web = '--function' in argv and 'web' in argv[argv.index('--function') + 1:2]
+        run_web = False
+        for f in ['--function', '--f', '-f']:
+            run_web = run_web or (f in argv and ('web' in argv[argv.index(f) + 1]))
 
+        print(run_web)
         if not run_web or not flask_reloader:
             me = singleton.SingleInstance()
 
