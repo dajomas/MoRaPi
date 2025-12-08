@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Track Dashboard</title>
+  <style>
+    body { font-family: sans-serif; display: flex; gap: 1rem; }
+    .panel { border: 1px solid #444; padding: 0.5rem 1rem; }
+    .panel h2 { margin-top: 0; }
+    table { border-collapse: collapse; }
+    th, td { border: 1px solid #999; padding: 0.2rem 0.5rem; }
+    .bar { font-family: monospace; white-space: pre; }
+  </style>
+</head>
+<body>
+  <div class="panel" style="width: 350px">
+    <h2>Status</h2>
+    <table id="tracks">
+      <thead>
+        <tr>
+          <th>#</th><th>Active</th><th>Speed</th><th>Direction</th><th>Graph</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3>Sensors</h3>
+    <ul id="sensors"></ul>
+    <h3>Points</h3>
+    <ul id="points"></ul>
+  </div>
+
+  <div class="panel" style="width: 250px">
+    <h2>Commands</h2>
+    <div>
+      <label>Speed (0–1): <input id="speed" type="number" min="0" max="1" step="0.1" value="0.5"></label>
+      <br>
+      <label>Direction:
+        <select id="direction">
+          <option value="1">Forward</option>
+          <option value="0">Stop</option>
+          <option value="-1">Reverse</option>
+        </select>
+      </label>
+      <br>
+      <button onclick="setSpeed()">Set speed</button>
+    </div>
+    <hr>
+    <button onclick="stop()">Stop</button>
+    <button onclick="forceStop()">Emergency stop</button>
+    <hr>
+    <div>
+      <label>Track:
+        <input id="trackIndex" type="number" min="0" value="0">
+      </label>
+      <button onclick="setTrack()">Switch track</button>
+    </div>
+    <div>
+      <label>Point:
+        <input id="pointIndex" type="number" min="0" value="0">
+      </label>
+      <button onclick="togglePoint()">Toggle point</button>
+    </div>
+  </div>
+
+  <div class="panel" style="flex: 1">
+    <h2>Output</h2>
+    <pre id="log"></pre>
+  </div>
+
+<script>
+const API = 'http://localhost:5000'; // adjust if needed
+
+async function fetchState() {
+  const res = await fetch(API + '/state');
+  const data = await res.json();
+  if (!data.ok) return;
+
+  // tracks
+  const tbody = document.querySelector('#tracks tbody');
+  tbody.innerHTML = '';
+  data.tracks.forEach((track, idx) => {
+    const tr = document.createElement('tr');
+    const active = idx === data.active_track ? '*' : '';
+    const speedPct = Math.round(track.speed * 100) + '%';
+
+    // build ascii bar like curses version
+    const len = Math.max(0, Math.round(track.speed * 10) - 1);
+    let bar = ''.padEnd(10, ' ') + '|' + ''.padEnd(10, ' ');
+    if (track.direction === -1) {
+      const left = ('<' + ''.padEnd(len, '=')).padStart(10, ' ');
+      bar = left + '|' + ''.padEnd(10, ' ');
+    } else if (track.direction === 1) {
+      const right = (''.padEnd(len, '=') + '>').padEnd(10, ' ');
+      bar = ''.padEnd(10, ' ') + '|' + right;
+    }
+
+    tr.innerHTML = `
+      <td>${idx}</td>
+      <td>${active}</td>
+      <td>${speedPct}</td>
+      <td>${track.direction_str}</td>
+      <td class="bar">${bar}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // sensors
+  const sensUl = document.getElementById('sensors');
+  sensUl.innerHTML = '';
+  data.sensors.forEach((gpio, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `Sensor ${idx} on GPIO${gpio}`;
+    sensUl.appendChild(li);
+  });
+
+  // points
+  const pointsUl = document.getElementById('points');
+  pointsUl.innerHTML = '';
+  data.points.forEach((pt, idx) => {
+    const li = document.createElement('li');
+    li.textContent = `Point ${idx} GPIO${pt.GPIO} status ${pt.status}`;
+    pointsUl.appendChild(li);
+  });
+}
+
+async function sendCommand(path, payload) {
+  await fetch(API + path, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload || {})
+  });
+}
+
+async function setSpeed() {
+  const speed = parseFloat(document.getElementById('speed').value);
+  const direction = parseInt(document.getElementById('direction').value, 10);
+  await sendCommand('/api/set_speed', {speed, direction});
+}
+
+async function stop()       { await sendCommand('/api/stop'); }
+async function forceStop()  { await sendCommand('/api/force_stop'); }
+async function setTrack()   {
+  const idx = parseInt(document.getElementById('trackIndex').value, 10);
+  await sendCommand('/api/set_track', {track: idx});
+}
+async function togglePoint() {
+  const idx = parseInt(document.getElementById('pointIndex').value, 10);
+  await sendCommand('/api/point_toggle', {point: idx});
+}
+
+// poll state once per second similar to __display_status
+setInterval(fetchState, 1000);
+fetchState();
+</script>
+</body>
+</html>
