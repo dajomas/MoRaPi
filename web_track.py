@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from threading import Thread
 from railway import Track
 from run import run_track
@@ -41,6 +41,10 @@ t = Track(
 runner = run_track()
 
 # --- REST-style endpoints ---
+
+@app.get("/")
+def index():
+    return send_from_directory("static", "index.html")
 
 @app.get("/state")
 def get_state():
