@@ -163,11 +163,24 @@ def main():
 
 #Run the main function when this program is run
 if __name__ == '__main__':
-    print("Program starting...")
+    import os
+
+    # Detect if Flask's reloader spawned this process
+    flask_reloader = os.environ.get('WERKZEUG_RUN_MAIN') == 'true'
+
     try:
-        print("Make sure this is the only instance")
-        me = singleton.SingleInstance()
-        print("Now start the railway tool")
+        # Only enforce singleton when not running the web UI,
+        # or when this is the main (non‑reloader) web process.
+        # Assuming you added 'web' to args.function choices.
+        # Parse args once here to know which mode we are in.
+        from sys import argv
+
+        # Very small parse to detect '--function web' without duplicating full argparse:
+        run_web = '--function' in argv and 'web' in argv[argv.index('--function') + 1:2]
+
+        if not run_web or not flask_reloader:
+            me = singleton.SingleInstance()
+
         main()
     except:
         pass
