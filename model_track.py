@@ -163,8 +163,11 @@ def main():
 
 #Run the main function when this program is run
 if __name__ == '__main__':
+    print("Program starting...")
     try:
+        print("Make sure this is the only instance")
         me = singleton.SingleInstance()
+        print("Now start the railway tool")
         main()
     except:
         pass
