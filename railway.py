@@ -76,7 +76,6 @@ class Track(object):
             self.__debug_print('No tracks defined',0)
             self.__reset()
             return
-        print(self.__choo_choos)
 
         self.__init_sensors()
         self.__init_points()
