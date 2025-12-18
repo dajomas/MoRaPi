@@ -71,6 +71,7 @@ default_args = {
     'pin_enable': None,
     'tracks': [],
     'sensor_pins': [],
+    'isensor_pins': [],
     'point_pins': [],
     'servos': [],
     'speed': 1,
