@@ -13,7 +13,7 @@ class Track(object):
                  pin_factories=None,
                  pin_enable=None, pin_fwd=17, pin_rev=18, tracks=[],
                  max_speed=1.0, steps=10, ctime=5,
-                 sensor_pins=[], isensor_pins=[], point_pins=[], servos=[],
+                 sensor_pins=[], point_pins=[], servos=[],
                  debug=0, help=False):
 
         self.__reset()
@@ -42,7 +42,6 @@ class Track(object):
         self.__steps = steps
         self.__ctime = ctime
         self.__sensor_pins = sensor_pins
-        self.__isensor_pins = isensor_pins
         self.__point_pins = point_pins
         self.__servos_conf = servos
         self.__debug = debug
@@ -236,10 +235,8 @@ class Track(object):
             self.__debug_print('* Initializing sensor '+str(count)+' on pin GPIO'+str(sensor_pin['pin']),0)
             self.__sensors_gpio['GPIO'+str(sensor_pin['pin'])] = count
             self.__sensors.append(Button(sensor_pin['pin'],pin_factory=self.__pin_factories[sensor_pin['pin_factory']]['pin_factory']))
-            if sensor_pin['pin'] in self.__isensor_pins:
-                self.__sensors[count].when_pressed = self.__sensor_callback
-            else:
-                self.__sensors[count].when_released = self.__sensor_callback
+            self.__sensors[count].when_released = self.__sensor_callback
+
 
     def __check_simple_pin(self,simple_pin):
         verified_pin = {}
@@ -532,12 +529,8 @@ class Track(object):
             counter = count
             while counter > 0:
                 self.__debug_print('sensor '+str(sensor_nr)+' to pass '+str(counter)+' times',1)
-                if self.__sensors[sensor_nr]['pin'] in self.__isensor_pins:
-                    self.__sensors[sensor_nr].wait_for_release()
-                    self.__sensors[sensor_nr].wait_for_press()
-                else:
-                    self.__sensors[sensor_nr].wait_for_press()
-                    self.__sensors[sensor_nr].wait_for_release()
+                self.__sensors[sensor_nr].wait_for_press()
+                self.__sensors[sensor_nr].wait_for_release()
                 counter -= 1
                 if counter > 0:
                     self.pause(1)
